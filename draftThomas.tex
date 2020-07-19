@@ -1,0 +1,256 @@
+
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath, amsthm, amssymb, amsfonts, dsfont, mathrsfs, dirtytalk, hyperref, tikz-cd, adjustbox}
+\usepackage[english]{babel} 
+\newcommand{\e}{\epsilon}
+\newcommand{\f}{\forall}
+\newcommand{\R}{\mathbb R}
+\newcommand{\st}{\text{ s.t. }}
+\newcommand{\ex}{\exists}
+\newcommand{\p}{\mathbb P}
+\newcommand{\D}{\mathcal D(\Omega)}
+\newcommand{\N}{\mathbb N}
+\newcommand{\oo}{\Omega}
+\newcommand{\harpoon}{\rightharpoondown}
+\newcommand{\al}{\alpha}
+\newcommand{\E}{\mathbb E}
+\newcommand{\B}{\mathcal B}
+\newcommand{\pspace}{(\oo, \Sigma, (\Sigma_t)_{t\geq 0}, \p)}
+
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem}[section]
+
+\theoremstyle{definition}
+\newtheorem{defn}[thm]{Definition}
+
+\theoremstyle{proposition}
+\newtheorem{prop}[thm]{Proposition}
+
+\theoremstyle{corollary}
+\newtheorem{cor}[thm]{Corollary}
+
+\theoremstyle{lemma}
+\newtheorem{lemma}[thm]{Lemma}
+
+\theoremstyle{remark}
+\newtheorem{rem}[thm]{Remark}
+
+\theoremstyle{example}
+\newtheorem{eg}[thm]{Example}
+
+\newenvironment{claim}[1]{\par\noindent\emph{Claim:}\space#1}{}
+\newenvironment{proofclaim}[1]{\par\noindent\textit{Proof of claim.}\space#1}{\hfill $\blacksquare$}
+\newenvironment{sketchproof}[1]{\par\noindent\textit{Sketch proof.}\space#1}{\hfill $\square$}
+
+
+\begin{document}
+\tableofcontents
+
+\section{Expected free energy}
+
+At the heart of active inference is a description of a certain class of systems that achieve steady-state (c.f., Figure 1) [cite our paper, Friston monograph]. That is to say, systems such that the predicted states at the time-horizon of a policy $Q(s_\tau,A), \tau >t$, reach some target distribution specified by the generative model $P(s_\tau,A)$ \footnote{Is steady state defined like this or should it be just with hidden states? Note that this condition is stronger}; the preferences over states. Given this, it is just a matter of finding the $Q(\pi)$ that makes this true for whichever $P(s_\tau, A)$ we select. We show in Appendix ? that a distribution $Q(\pi)$ of the form
+
+\begin{align}
+   Q(\pi) &:=\sigma(-G(\pi; \beta)) \\
+   G(\pi; \beta) &:= D_{KL}[Q(s_\tau, A|\pi)||P(s_\tau, A)]- \mathbb E_{Q(o_\tau,s_\tau, A|\pi)}[\beta \log P(o_\tau |s_\tau, A)]  \\
+   \beta &:=\frac{\mathbb E_{Q}[\log Q(\pi|s_\tau)]}{\mathbb E_{Q}[\log P(o_\tau |s_\tau, A)]} \geq 0 \\
+   Q &:= Q(o_\tau, s_\tau, A, \pi) := P(o_\tau|s_\tau, A) Q(s_\tau|\pi)Q(A)Q(\pi)
+\end{align}
+
+guarantees steady-state. This distribution has interesting interpretations; for example, the case $\beta=0$ corresponds to standard stochastic control, variously known as KL control or risk-sensitive control:
+
+\begin{equation}
+    G(\pi; 0) = D_{KL}[Q(s_\tau, A|\pi)||P(s_\tau, A)] \geq D_{KL}[Q(s_\tau |\pi)||P(s_\tau)]
+\end{equation}
+
+In other words, one chooses policies that minimise the divergence between the predictive and target distribution. More generally, when $\beta >0$, policies are more likely when they simultaneously minimise the entropy of outcomes, given states. One can see that KL control may arise in this case if the entropy of the likelihood mapping remains constant with respect to policies. 
+In what follows, we will assume $\beta=1$, which is the expected free energy [cite] \footnote{The assumption $\beta =1$ is made purely for historical reasons; the parameter $\beta$ has not appeared in the literature before and addressing the computational challenge of computation and its practical implications are outside the scope of this review. One should note that assuming $\beta =1$ does not guarantee steady-state, as the true value of $\beta$ depends upon the generative model and is updated as the agent samples new observations. Nevertheless, we will establish in the next section that the expected free energy is a reasonable (canonical) choice with desirable properties. From a practical point of view, it is useful to bear in mind how the expected free energy has successfully been employed in practice to simulate apparently purposeful behaviour.}
+
+\begin{equation}
+    \begin{split}
+            G(\pi) & :=  \underbrace{ D_{KL}[Q(s_\tau, A|\pi)||P(s_\tau, A)]}_{Risk}- \underbrace{\mathbb E_{Q(o_\tau,s_\tau, A|\pi)}[ \log P(o_\tau |s_\tau, A)]}_{Ambiguity}\\
+    &= \mathbb E_{Q(o_\tau,s_\tau,A|\pi)}[\log Q(s_\tau, A|\pi)-\log P(o_\tau, s_\tau, A)] 
+    \end{split}
+\end{equation}
+
+
+
+Let us consider the inferential dynamics necessary to obtain the requisite posterior over policies. Given that a KL divergence is always non-negative, and vanishes only when the distributions in play are identical, this tells us that the $Q(\pi)$ that minimises the following free energy functional is the approximate posterior required to ensure $Q(s_\tau, A) = P(s_\tau, A)$:
+
+\begin{equation}
+\label{eqfe}
+    \begin{split}
+        F_\tau [Q(s_\tau,  A, \pi)]&= \mathbb E_{Q(o_\tau, s_\tau, A, \pi)}[\log Q(s_\tau, A, \pi)- \log P(o_\tau, s_\tau, A)] \\
+        &=D_{KL}[Q(\pi)||\sigma(-G(\pi))]
+    \end{split}
+\end{equation}
+\footnote{Need to add E, $F_\pi$ and other taus into the expression.}
+\footnote{Can we argue that reaching steady state and staying there corresponds to summing EFE over at times in the future?}
+
+The free energy $F_\tau  [Q(s_\tau,  A, \pi)] = \mathbb E_{Q(\pi)} [G(\pi)]-H[Q(\pi)]$ is an expectation under the predictive distribution over policies, hidden states and outcomes, where future outcomes are random variables, as opposed to realised or observed variables. This free energy can be expressed as a KL divergence that is minimised when the posterior over policies is a softmax function of the expected free energy.
+
+This means that we can construe inferential dynamics over policies as a gradient descent on the free energy of \eqref{eqfe}. Since it is a convex function of its argument, we know that the dynamics will reach the requisite posterior:
+\footnote{Have it as a function of pi as opposed to a functional}
+\begin{equation}
+    \begin{split}
+        F_\tau [Q(s_\tau,  A, \pi)] &= D_{KL}[Q(\pi)||\sigma(-G(\pi))] 
+        \\
+        &=  \pi \cdot [\log \pi- \log \sigma(- \textbf G)] \\
+         \Rightarrow \dot \pi &= - \nabla_\pi F_\tau [Q(s_\tau,  A, \pi)] \\
+        &= \pi - \sigma(- \bold G)
+    \end{split}
+\end{equation}
+
+Here $\bold G$ corresponds to the vector of expected free energies for each policy (see Appendix ? for a computation). Finally, action selection consists of choosing the most plausible action under $Q(\pi)$ via a Bayesian model average:
+
+\begin{equation}
+    u_t = \arg \max_{u \in U } \left (\sum_{\pi \in \Pi} \delta_{u, \pi_t} Q(\pi)\right)
+\end{equation}
+
+where $\delta$ is the Kronecker delta. In addition, we obtain a policy independent state-estimation for any $\tau \in \{1,...,T\}$, as a Bayesian model average of approximate posterior beliefs about hidden states and policies:
+
+\begin{equation}
+\begin{split}
+        Q(s_\tau) &= \sum_{\pi \in \Pi} Q(s_\tau |\pi)Q(\pi) \\
+        &= \sum_{\pi \in \Pi} \bold s_{\pi \tau} \pi_\pi
+\end{split}
+\end{equation}
+\footnote{This use of pi as sufficient statistic of Q(pi) does not work. Need to find something else.}
+
+These Bayesian model averages may be implemented by neuromodulatory connections [41].
+
+\begin{rem}
+Note that perception guarantees $Q(s_\tau, A | \pi ) \approx P(s_\tau, A | \pi , o_{1:t}) \Rightarrow Q(s_\tau, A ) \approx P(s_\tau, A | o_{1:t})$ \footnote{Maybe this doesn't really hold. Although if we have equality in the first place it does}, while inference over policies guarantees $Q(s_\tau, A) = P(s_\tau, A)$. This implies that $P(s_\tau, A | o_{1:t}) \approx P(s_\tau, A)$ the invariant distribution. Thus, our agent is not sensitive to initial conditions and returns to the invariant distribution, as desired.
+\end{rem}
+
+
+\section{Properties of the expected free energy}
+
+This section aims to interpret the expected free energy and some of its properties in relation to existing literature.
+
+We can express the expected free energy of a policy as a bound on information gain and expected log evidence (aka Bayesian risk): \footnote{Check that it works with model parameters}
+
+\begin{equation}
+    \begin{split}
+        G(\pi)
+        &= \underbrace{\mathbb E_Q[D_{KL}[Q(s_\tau, A|o_\tau, \pi)||P(s_\tau, A|o_\tau)]]}_{\text{Expected evidence bound}}- \underbrace{\mathbb E_Q[\log P(o_\tau)]}_{\text{Expected log evidence}} \\
+        &- \underbrace{\mathbb E_Q [D_{KL}[Q(s_\tau,A |o_\tau, \pi)||Q(s_\tau ,A|\pi)]]}_{\text{Expected information gain}} \\
+        &\geq - \underbrace{\mathbb E_Q[\log P(o_\tau)]}_{\text{Expected log evidence}}- \underbrace{\mathbb E_Q [D_{KL}[Q(s_\tau,A |o_\tau, \pi)||Q(s_\tau,A |\pi)]]}_{\text{Expected information gain}} 
+    \end{split}
+\end{equation}
+
+The first term is the expectation of log evidence under beliefs about future outcomes, while the second ensures that this expectation is maximally informed, when outcomes are encountered. Collectively, these two terms underwrite the resolution of uncertainty about hidden states (i.e., information gain) and outcomes (i.e., expected surprise) in relation to prior beliefs.
+
+The expected free energy of a policy can be unpacked in a number of ways. Perhaps the most intuitive is in terms of risk and ambiguity:
+
+\begin{equation}
+    G(\pi) := \underbrace{D_{KL}[Q(s_\tau, A|\pi)||P(s_\tau, A)]}_{Risk}+ \underbrace{\mathbb E_{Q(s_\tau, A|\pi)}[ H [ P(o_\tau |s_\tau, A)]]}_{Ambiguity}
+\end{equation}
+
+This means that policy selection minimises risk and ambiguity. Risk, in this setting, is simply the difference between predicted and prior beliefs about final states. In other words, policies will be deemed more likely if they bring about states that conform to prior preferences. In the optimal control literature, this part of expected free energy underwrites KL control (Todorov, 2008; van den Broek et al., 2010). In economics, it leads to risk sensitive policies (Fleming and Sheu, 2002). Ambiguity reflects the uncertainty about future outcomes, given hidden states. Minimising ambiguity therefore corresponds to choosing future states that generate unambiguous and informative outcomes (e.g., switching on a light in the dark). The corresponding free energy functional of future states can now be expressed in terms of risk, ambiguity and effort:
+
+\begin{multline}
+        F_\tau [Q(s_\tau, A,\pi)]= \underbrace{\mathbb E_{Q(\pi)}D_{KL}[Q(s_\tau, A|\pi)||P(s_\tau, A)]}_{\text{Expected risk}}\\ + \underbrace{\mathbb E_Q[-\log P(o_\tau |s_\tau,A)]}_{\text{Expected Ambiguity}}+ \underbrace{\mathbb E_Q[\log Q(\pi)]}_{\text{Effort}}
+\end{multline}
+
+The effort term scores the negentropy or precision of posterior beliefs about ‘what to do’. In other words, it reflects the commitment to – or focus on – a particular course of action.
+
+Sometimes, it is useful to express risk in terms of outcomes, as opposed to hidden states. For example, when the generative model is not known – or one can only quantify preferences about outcomes (as opposed to the inferred causes of those outcomes). In these cases, the risk over hidden states can be replaced risk over outcomes by assuming the divergence between the predicted and true posterior is small:
+
+\begin{multline}
+    D_{KL}[Q(s_\tau, A|\pi)||P(s_\tau)]=D_{KL}[Q(o_\tau|\pi)||P(o_\tau)]\\+\mathbb E_{Q(o_\tau |\pi)}[D_{KL}[Q(s_\tau, A|o_\tau, \pi)||P(s_\tau, A|o_\tau)]] 
+\end{multline}
+
+This divergence constitutes an expected evidence bound that also appears if we unpack expected free energy in terms of intrinsic and extrinsic value:
+
+\begin{equation}
+\begin{split}
+       G(\pi) &= -\mathbb E_{Q(o_\tau |\pi)}[\log P(o_\tau)]+ \mathbb E_{Q(o_\tau|\pi)}[D_{KL}[Q(s_\tau, A|o_\tau, \pi)||P(s_\tau, A|o_\tau)]] \\
+       &-\mathbb E_{Q(o_\tau|\pi)}[D_{KL}[Q(s_\tau|o_\tau, \pi)||Q(s_\tau |\pi)]]\\ &-\mathbb E_{Q(o_\tau,s_\tau|\pi)}[D_{KL}[Q(A|o_\tau, s_\tau, \pi)||Q(A)]]
+\end{split}
+\end{equation}
+
+Extrinsic value is just the expected value of log evidence, which can be associated with reward and utility in behavioural psychology and economics, respectively (Barto et al., 2013; Kauder, 1953; Schmidhuber, 2010). In this setting, extrinsic value is the negative of Bayesian risk (Berger, 2011), when reward is log evidence. The intrinsic value of a policy is its epistemic value or affordance (Friston et al., 2015). This is just the expected information gain afforded by a particular policy, which can be about hidden states (i.e., salience) or model parameters (i.e., novelty). It is this term that underwrites artificial curiosity (Schmidhuber, 2006).
+
+Intrinsic value is also known as intrinsic motivation in neurorobotics (Barto et al., 2013; Oudeyer and Kaplan, 2007; Ryan and Deci, 1985), the value of information in economics (Howard, 1966), salience in the visual neurosciences and (rather confusingly) Bayesian surprise in the visual search literature (Itti and Baldi, 2009; Schwartenbeck et al., 2013; Sun et al., 2011). In terms of information theory, intrinsic value is mathematically equivalent to the expected mutual information between hidden states in the future and their consequences – consistent with the principles of minimum redundancy or maximum efficiency (Barlow, 1961; Barlow, 1974; Linsker, 1990). Finally, from a statistical perspective, maximising intrinsic value (i.e., salience and novelty) corresponds to optimal Bayesian design (Lindley, 1956) and machine learning derivatives, such as active learning (MacKay, 1992). On this view, active learning is driven by novelty; namely, the information gain afforded model parameters, given future states and their outcomes. Heuristically, this curiosity resolves uncertainty about “what would happen if I did that” (Schmidhuber, 2010). Figure 4 illustrates the compass of expected free energy, in terms of its special cases; ranging from optimal Bayesian design through to Bayesian decision theory.
+
+\appendix
+\section{The Steady-state lemma}
+
+\textbf{Objective:} we seek distributions over policies that imply steady-state solutions; i.e., when the final distribution does not depend upon initial observations. Such solutions ensure that, on average, stochastic policies lead to a steady-state or target distribution specified by the generative model. These solutions exist in virtue of conditional independencies, where the hidden states provide a Markov blanket that separates policies from outcomes. In other words, policies cause final states that cause outcomes. In what follows, $\tau >t$ is a future time and $Q:=Q(o_\tau, s_\tau, A, \pi) \approx P(o_\tau, s_\tau, A, \pi|o_{1:t})$ is the corresponding approximate posterior distribution, given initial conditions $o_{1:t}$.
+
+\begin{lemma}[Steady-state]
+The surprisal over policies $-\log Q(\pi)$ and the Gibbs free energy,
+\begin{align}
+    G(\pi; \beta) &= D_{KL}[Q(s_\tau, A|\pi)||P(s_\tau,A)]-\mathbb E_{Q(o_\tau, s_\tau, A|\pi)} [\beta \log P(o_\tau |s_\tau, A)] \\
+    \beta &:= \frac{\mathbb E_Q[\log Q(\pi|s_\tau)]}{\mathbb E_Q[\log P(o_\tau|s_\tau,A)]} \geq 0
+\end{align}
+are equal on average under $Q$ if and only if the system reaches steady-state. Explicitly:
+\begin{align}
+    \mathbb E_Q[-\log Q(\pi)]&= \mathbb E_Q[G(\pi; \beta)] \iff D_{KL}[Q(s_\tau, A) ||P(s_\tau, A)]=0
+\end{align}
+\end{lemma}
+
+Here, $\beta \geq 0$ characterises the steady-state with the relative precision (i.e., negentropy) of policies and final outcomes, given final states. The generative model stipulates steady-state, in the sense that distribution over final states (and outcomes) does not depend upon initial observations. \footnote{This is the actual definition of steady state. Maybe should include it in my motivation} Here, the generative and predictive distributions simply express the conditional independence between policies and final outcomes, given final states. Note that when $\beta = 1$, Gibbs free energy becomes expected free energy.
+
+\begin{proof}
+Let us unpack the Gibbs free energy expected under $Q$:
+\begin{equation}
+    \begin{split}
+        \mathbb E_Q[G(\pi; \beta)] &=\mathbb E_Q[D_{KL}[Q(s_\tau, A|\pi)||P(s_\tau,A)]-\mathbb E_{Q(o_\tau, s_\tau, A|\pi)} [\beta \log P(o_\tau |s_\tau, A)]] \\
+        &= \mathbb E_Q[D_{KL}[Q(s_\tau, A|\pi)||P(s_\tau,A)]]\\
+        &-\frac{\mathbb E_Q[\log Q(\pi|s_\tau,A)]}{\mathbb E_Q[\log P(o_\tau|s_\tau,A)]} \mathbb E_Q [\mathbb E_{Q(o_\tau, s_\tau, A|\pi)} [ \log P(o_\tau |s_\tau, A)]] \\
+        &= \mathbb E_Q[\log Q(s_\tau, A|\pi)-\log P(s_\tau, A)-\log Q(\pi |s_\tau,A)] \\
+        &= \mathbb E_Q[-\log Q(\pi)-\log P(s_\tau, A)+\log Q(s_\tau,A)]
+    \end{split}
+\end{equation}
+And the result is immediate.
+\end{proof}
+
+\textbf{Remark:} One perspective – on the distinction between simple and general steady-states – is in terms of uncertainty about policies. For example, simple steady-states preclude uncertainty about which policy led to a final state. This would be appropriate for describing classical systems (that follow a unique path of least action), where it would be possible to infer which policy had been pursued, given the initial and final outcomes. Conversely, in general steady-state systems (e.g., mice, Homo sapiens), simply knowing that ‘you are here’ does not tell me ‘how you got here’, even if I knew where you were this morning. Put another way, there are lots of paths or policies open to systems that attain a general steady state.
+
+
+The treatment in (Friston, 2019) effectively turns the steady-state lemma on its head by assuming the steady-state is stipulatively true – and then characterises the ensuing self-organisation in terms of Bayes optimal policies. In essence, implementing active inference consists of engineering systems at steady-state. This observation imply the following corollary, which speaks to active inference.
+
+\begin{cor}[Active inference (Friston, 2019)]
+ If a system attains a general steady-state, it will appear to behave in a Bayes optimal fashion – both in terms of optimal Bayesian design (i.e., exploration) and Bayesian decision theory (i.e., exploitation). Crucially, the loss function defining Bayesian risk \footnote{What does he mean by Bayesian risk again?} is the negative log evidence for the generative model entailed by an agent. In short, systems (i.e., agents) that attain general steady-states will look as if they are responding to epistemic affordances (Parr and Friston, 2017).
+\end{cor}
+
+
+\section{Computing expected free energy}
+Recall that the expected free energy of a policy $\pi$ at time $\tau$ in the future is expressed as: \footnote{Probably will need to get rid of $\tau$}
+
+$$G(\pi, \tau )= D_{KL}[Q(s_\tau, A|\pi)||P(s_\tau,A)]+\mathbb E_{Q(s_\tau, A|\pi)}[\text {H}[ P(o_\tau|s_\tau,A)]]$$
+
+According to our choice of mean-field approximation the approximate posterior factorises as $Q(s_\tau ,A|\pi)= Q(s_\tau |\pi)Q(A)$ and furthermore the form of the generative model (c.f., Figure ") implies $P(s_\tau ,A)=P(s_\tau)P(A)$. This means:
+\begin{multline}
+    G(\pi, \tau )=  D_{KL}[Q(s_\tau, |\pi)||P(s_\tau)]+\mathbb E_{Q(s_\tau, A|\pi)}[\text {H}[ P(o_\tau|s_\tau,A)]]+D_{KL}[Q(A)||P(A)]
+\end{multline}
+
+Since the last term is constant with respect to policies, we may ignore it since it will be removed by the softmax function when computing the approximate posterior.
+
+Irrespective of whether we specify preferences in terms of hidden states or outcomes (c.f., equation ?), the risk term is straightforward to compute:
+\begin{align}
+   D_{KL}[Q(s_\tau |\pi)||P(s_\tau)]= \bold s_{\pi \tau} \cdot (\log \bold s_{\pi \tau}-\log C) \\
+   D_{KL}[Q(o_\tau |\pi)||P(o_\tau)]= \bold A \bold s_{\pi \tau} \cdot (\log (\bold A \bold s_{\pi \tau})-\log C)
+\end{align}
+We denoted by $C$ the prior preferences over states or outcomes respectively (c.f., Figure 2).
+
+The computation of the ambiguity term is slightly more involved. Let $e_i$ be the $i^{th}$ unit vector. Then: 
+
+\begin{equation}
+    \begin{split}
+        \mathbb E_{Q(s_\tau, A|\pi)}[\text {H}[ P(o_\tau|s_\tau =e_j,A)]] &=
+        \mathbb E_{Q(s_\tau|\pi)Q(A)}[- \sum_i (e_i \cdot A e_j)(e_i \cdot \log A e_j)] \\
+         &= - \mathbb E_{Q(s_\tau|\pi)}[\sum_i \mathbb E_{Q(A)}[ A_{ij} \log A_{ij}]] \\
+        &= - \mathbb E_{Q(s_\tau|\pi)}[ \sum_i \frac{\bold a_{ij}}{ \bold a_{0j}}(\psi(\bold a_{ij}+1)-\psi(\bold a_{0j}+1))] \\
+        &= - \bold s_{\pi \tau } \cdot \sum_i \left (\bold a_{i\bullet} \odot  (\psi(\bold a_{i\bullet }+ \vec 1)-\psi(\bold a_{0\bullet }+ \vec 1))\odot \bold a_{0\bullet}^{\odot -1} \right ) \\
+        &= - \bold s_{\pi \tau } \cdot  \left (\sum_i (\bold a_{i\bullet} \odot  \psi(\bold a_{i\bullet }+ \vec 1)\odot \bold a_{0\bullet}^{\odot -1})-\psi(\bold a_{0\bullet }+\vec 1) \right )
+    \end{split}
+\end{equation}
+
+To compute $\mathbb E_{Q(A)}[A_{ij}\log A_{ij}]$ in the second line, we use the fact that $Q(A_{i \bullet}) =Dir(\bold a_{i \bullet})$ implies $Q(A_{i j}) =Beta(\bold a_{i j},\bold a_{0 j}-\bold a_{i j}) $. This is convenient since $\mathbb E_{Q(A)}[A_{ij}\log A_{ij}] = \frac{\bold a_{ij}}{ \bold a_{0j}}(\psi(\bold a_{ij}+1)-\psi(\bold a_{0j}+1))$ is a well-known identity for the Beta distribution.
+
+\end{document}
