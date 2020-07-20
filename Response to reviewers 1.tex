@@ -1,0 +1,199 @@
+
+
+\documentclass{article}
+
+%%%Packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amsthm, amssymb, amsfonts, dsfont, mathrsfs, dirtytalk, tikz-cd, adjustbox, url, nicefrac, booktabs,array,longtable, tabu,bm, hyperref, graphicx, geometry,comment}
+\usepackage{caption}
+
+\usepackage[T1]{fontenc}    
+%\usepackage[margin=1in]{geometry}
+\usepackage[english]{babel}
+%\usepackage[pagebackref=true]{hyperref}
+%\usepackage{hyperref}
+\usepackage[capitalise]{cleveref}
+%\usepackage{arxiv}
+
+%%%Backreferences
+%\renewcommand*{\backref}[1]{}
+%\renewcommand*{\backrefalt}[4]{%
+%    \ifcase #1%
+%          \or (p.~#2.)%
+ %         \else (p.~#2.)%
+  %  \fi%
+   % }
+
+%%%%Macros
+\newcommand{\e}{\epsilon}
+\newcommand{\f}{\forall}
+\newcommand{\R}{\mathbb R}
+\newcommand{\st}{\text{ s.t. }}
+\newcommand{\ex}{\exists}
+\newcommand{\p}{\mathbb P}
+\newcommand{\D}{\mathcal D(\Omega)}
+\newcommand{\N}{\mathbb N}
+\newcommand{\oo}{\Omega}
+\newcommand{\harpoon}{\rightharpoondown}
+\newcommand{\E}{\mathbb E}
+
+
+%%%%Theorem environments%%%%
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{remark}[theorem]{Remark}
+\newenvironment{claim}[1]{\par\noindent\emph{Claim:}\space#1}{}
+\newenvironment{proofclaim}[1]{\par\noindent\textit{Proof of claim.}\space#1}{\hfill $\blacksquare$}
+\newenvironment{sketchproof}[1]{\par\noindent\textit{Sketch proof.}\space#1}{\hfill $\square$}
+
+%% Use the option review to obtain double line spacing
+%% \documentclass[authoryear,preprint,review,12pt]{elsarticle}
+
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+%% \documentclass[final,1p,times,authoryear]{elsarticle}
+%% \documentclass[final,1p,times,twocolumn,authoryear]{elsarticle}
+%% \documentclass[final,3p,times,authoryear]{elsarticle}
+%% \documentclass[final,3p,times,twocolumn,authoryear]{elsarticle}
+%% \documentclass[final,5p,times,authoryear]{elsarticle}
+%% \documentclass[final,5p,times,twocolumn,authoryear]{elsarticle}
+
+%% For including figures, graphicx.sty has been loaded in
+%% elsarticle.cls. If you prefer to use the old commands
+%% please give \usepackage{epsfig}
+
+%% The amssymb package provides various useful mathematical symbols
+%\usepackage{amssymb}
+%% The amsthm package provides extended theorem environments
+%% \usepackage{amsthm}
+
+%% The lineno packages adds line numbers. Start line numbering with
+%% \begin{linenumbers}, end it with \end{linenumbers}. Or switch it on
+%% for the whole article with \linenumbers.\usepackage{lineno}
+
+%\journal{Journal of Mathematical Psychology}
+
+\begin{document}
+Editor and Reviewer comments:    
+
+\textbf{Reviewer #1:} This paper presents a detailed and thorough overview of the theory of active inference on discrete space (and action) spaces. It rapidly walks the reader through the standard formulation of the generative model, approximate posterior, and update rules and also covers some more advanced cases such as inferring the parameters of the generative model (the A,B, and D matrices), and bayesian structure learning of the  generative model.
+
+Overall the paper is very well written and comprehensive and, while containing no novel results (with the possible exception of appendix B), provides a thorough and approachable overview of the field which is difficult to obtain otherwise due to the many disparate threads and model formulations in the literature. As such I think the manuscript provides a valuable contribution to the literature and should be accepted.
+
+Beyond this I have some comments on the main text of the manuscript as well as a fair number of comments on appendix B, where I believe some novel derivations were presented.
+
+Main text:
+
+On page 15, it talks about the likelihood matrix (A) denoting the probabilities of states given observations. I believe this should be the other way around (observations given states). The former would correspond to the posterior.
+
+Well spotted, we have changed this to “the probability of outcomes given states”.
+
+The glossary of notation in pages 15-17 is very helpful. It would be very helpful to add, however, the types of variables specifically for the discrete state space formulation which is tackled in this paper. I.e. explicitly note that are represented as parameters of categorical distributions (and as such as vectors of real numbers). That the approximate posterior is a vector of real numbers, that the free energy and expected free energy are functionals that evaluate to a scalar quantity. Being explicit about this helps the reader 'type-check' the maths and can forestall much confusion.
+
+Good point. We have added “that evaluates to a scalar quantity” for the free energy and expected free energy.
+
+p21 - is 'mathematical yoga' the expression that was intended? I like it though.
+
+Yes, this was on purpose. I am glad that you like it.
+
+p22 -- it should be clarified that the VFE does not particularly measure surprise except when the approximate and true posterior are very close. Rather it is a bound on the true posterior, and since the true posterior is generally intractable, how tight this bound is is generally unknowable.
+
+Thanks. We implemented this.
+
+For equations 7,8,9 I think some further explanation of how to reach one from the other would be helpful here (if only in an appendix). Refreshing the reader's memory about how the probability densities (and expectations) are represented in terms of matrix operations would make this transition easier to follow. In equation 9, I don't believe $v_dot$ or v are defined anywhere (are these the prediction errors). Also using $v_dot$ is odd in a discrete time formulation. Could this just be formulated as a discrete time gradient descent - i.e. $v_{t+1} = v_t + \grad F$.
+
+Done
+
+Also some further clarification of how exactly equation 8 which involves essentially the difference between the approximate posterior and the generative model maps onto the concept of prediction errors as in predictive coding would be appreciated. For instance, is the posterior or the generative model meant to be considered the 'prediction'?
+
+Ok
+
+In equation 12, I don't believe $s_\pi_\tau$ is defined anywhere. Indeed, what does it mean to just have a state instead of a probability density here?
+
+I don’t understand
+
+on page 29, the pederson citation doesn't have any date associated with it in the text
+
+Ok
+
+in equation 17, should the sums run up to T (not t), as in they should be up to the time horizon?
+
+\textit{No. The sum should run over the time-steps where outcomes have been observed and in the paper we consider that outcomes have been observed up to time t. But the software implementation of learning in active inference occurs once at the end of every trial, i.e., when $t=T$. We have the following paragraph that explains this and hopefully solves your concerns. "Since synaptic plasticity dynamics occur at a much slower pace than perceptual inference, it is computationally much cheaper -- in numerical simulations -- to do a one-step belief update at the end of each trial of observation epochs. Explicitly, setting the free energy gradient to zero at the end of the trial gives the following update for Dirichlet parameters:}
+	\begin{equation}
+	\label{eq: learning dirichlet one step}
+  	    \bold a=  a +\sum_{\tau =1}^T o_\tau \otimes \bold s_\tau"
+  	\end{equation}
+
+The structure learning equations (eq 22-26) use a completely different notation than the rest of the paper. Unless there is compelling reason not to do this, I think it would be good to bring them into alignment.
+
+\textit{We have changed all the nu's (the notation that didn't coincide) with A's (notation that coincides). In addition, we added "In the following, we show BMR for learning the likelihood matrix $A$. Note that BMR is generic and could be used on any other variable that may be optimised during learning, just by replacing $A$ in the following lines."}
+
+on page 52, the date on the mirza paper is weird (goes into the day)
+
+Thanks we corrected this.
+
+on page 53 this paragraph:
+Examples of
+660 generative models that do not fall within the current discrete state-space, continuous
+661 state-space (Buckley et al., 2017; Friston et al., 2012c; Adams et al., 2013b; Brown
+662 et al., 2013; Adams et al., 2013a; Friston et al., 2012b; Brown and Friston, 2012)
+663 or mixed (Friston et al., 2017c; Parr and Friston, 2018d, 2019) models - currently
+664 implemented in active inference - include Markov decision trees (Jordan et al., 1998,
+665 1997) and Boltzmann machines (Stone, 2019; Ackley et al., 1985; Salakhutdinov and
+666 Hinton, 2012)
+
+seems garbled to me
+
+\textit{We have simplified the paragraph and instead have: "Examples of generative models that are used in learning and decision-making, yet are not accommodated by the current process theory, include Markov decision trees and Boltzmann machines.}
+
+In appendix B is where novel (to me) results are presented. While the maths seems valid, I had some concerns about the presentation and explanation of the ideas. My core worry or confusion is about the justification of the Gibbs free energy. This quantity is introduced without any motivation or justification for why it should be considered. While the derivations about policies follow directly from the definition ,it is unclear that the gibbs free-energy is unique in this sense. Effectively, the core idea is to define a 'free energy' of some form G = Q(pi) - KL[Q(s,a)||p(s,a)] and thus that when the KL between the predicted and steady state is 0, then Q(pi) = G. However this specifies a very large class of possible functionals (by multiplying and dividing by different quantities) and it is unclear why the relationship between these functionals which are straightforwardly derived 'backwards' and the KL between the predicted and steady state is important at all. I think the
+logic behind these manipulations should be spelled much more clearly out in the text to motivate why the gibbs free energy or some variant is useful to consider in this context.
+
+Ok
+
+In this sentence: "These solutions exist in virtue of conditional independencies, where the hidden states provide a Markov blanket that separates policies from outcomes". It is claimed that solutions for these policies always exist. This is not at all clear in the general case and I think needs stronger justification. It is easy to imagine cases where no possible policy allows you to reach a steady state density -- for instance if the steady state density exists on the other side of an impassable gulf. I feel like there are important smoothness (and perhaps ergodicity?) assumptions on the state and action space that are being elided here and which would be interesting to make explicit.
+
+?
+
+
+KL control is presented as being a special case of the gibbs free energy when beta = 0. However when beta = 0, that implies that the posterior density over policies is 0 (!!!) which is a very odd situation given that KL control agents can presumably be thought of as having policies.
+
+When $\beta =0$, the posterior over policies is not zero, rather
+$$Q(\pi) = \exp(-G(\pi; 0)) = \exp(-D_{KL}[Q(s_\tau, A|\pi)||P(s_\tau, A)])$$
+and indeed, KL control agents do have policies.
+
+Similarly, the expected free energy is attained when the average policy posterior is equal to the average likelihood (?) which is also a strange and nonintuitive condition.
+
+The expected free energy corresponds to the case 
+
+I feel like a more intuitive justification and explanation of the gibbs free energy and these sorts of relations would be much appreciated in demystifying this section.
+
+Further explanation of corollary 3 (that the markov blanket implies beta = 1 and thus the EFE is returned) would also be very much appreciated.
+
+
+
+
+
+
+\textbf{Reviewer #2:} This paper summarizes the theories of active inference, a normative principle of various domains of cognition and behavior. This review covers a large body of literature regarding active inference. I feel this paper will be a useful guide for those who want to learn and active inference. I have only minor requests for better motivating readers to read this.
+
+As this journal is the journal of mathematical *psychology*, I suggest that the authors discuss how the theory of active inference is beneficial for psychologists, who want to understand psychological or cognitive processes, without mentioning to neurophysiology. Psychologists often use mathematical models of psychological processes, e.g., drift-diffusion models and the Rescorla-Wagner model, to fit or simulate behavioral data. These mechanistic models can be easily related to psychological processes. On the other hand, it is somehow difficult to understand what computational process works in the active inference framework, especially for those who are not familiar with the concept of statistical physics. I believe that active inference offers a principle of behavior, but the authors may want to clarify these issues, e.g., how simulating experimental behavior in active inference is useful for the understanding (psychological) processes, and, how the active inference provides
+a principle underlying the existing process models.
+
+Minor comments:
+
+1. The idea that is difficult to understand for beginners is dealing with the policy $\pi$ as a random variable. Readers may want a kind notion regarding this around equation (1).
+ 
+2. Some terminology for mathematical terms is used without explaining the reason. For example, why the first term of equation (10) is termed "Risk"? --in decision science, the risk usually refers to the variance of outcome (i.e., financial risk), but this does not seem the case here. Also, this is true for "ambiguity" and "intrinsic value."
+ 
+3. Line 155, "and the probability of states given outcomes": perhaps this should read "and the probability of outcomes given states"?
+
+4.The name of the person in the photo is missing in Fig. 4 while there is in Fig.3.
+
+\bibliographystyle{elsarticle-harv} 
+\bibliography{aiexplained_bib}
+
+\end{document}

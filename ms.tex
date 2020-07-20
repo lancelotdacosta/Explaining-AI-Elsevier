@@ -233,7 +233,7 @@ $X_{\bullet i}, X_{ki}$& i$^{th}$ column and (k,i)$^{th}$ element of matrix $X$.
  
 $\cdot, \otimes, \odot, ^\odot$& Respectively inner product, Kronecker product, element-wise product and element-wise power. Following existing active inference literature, we adopt the convention $X \cdot Y:= X^T Y$ for matrices. &	Operation on vectors and matrices. \\\addlinespace[0.3cm]
  
-$A$ & Likelihood matrix. The probability of the state-outcome pair $o_\tau, s_\tau$ is given by $o_\tau \cdot A s_\tau$. & Random variable over the subset of $M_{n\times m}(\mathbb R)$ with columns in $\{x \in \mathbb R^{k} | x_i >0, \sum_i x_i =1\}$. \\\addlinespace[0.3cm]
+$A$ & Likelihood matrix. The probability of the state-outcome pair $o_\tau, s_\tau$, namely $P(o_\tau|s_\tau,A)$ is given by $o_\tau \cdot A s_\tau$. & Random variable over the subset of $M_{n\times m}(\mathbb R)$ with columns in $\{x \in \mathbb R^{k} | x_i >0, \sum_i x_i =1\}$. \\\addlinespace[0.3cm]
 
 $B$ & Matrix of transition probabilities from one state to the next state given action $\pi_{\tau-1}$. The probability of possible state $s_\tau$, given $s_{\tau-1}$ and action $\pi_{\tau-1}$ is $s_\tau\cdot B_{\pi_{\tau-1}}s_{\tau -1}$. & Matrix in $M_{m\times m}(\mathbb R)$ with columns in $\{x \in \mathbb R^{k} | x_i >0, \sum_i x_i =1\}$. \\\addlinespace[0.3cm]
 
@@ -833,7 +833,7 @@ So far, we have deduced the distribution over policies of systems that reach ste
 		- \underbrace{\mathbb E_{P(o_\tau |s_\tau)Q(s_\tau|\pi)}[D_{KL}[Q(A|o_\tau,s_\tau)||Q(A)]]}_{\text{Novelty}}
 	\end{multline}
 	
-	 Here, $Q(A|o_\tau,s_\tau)$ denotes approximate posterior beliefs about $A$ if we knew occurence of the state outcome pair $(o_\tau,s_\tau)$. In the following, we show that we can compute the expected free energy in the following way
+	 Here, $Q(A|o_\tau,s_\tau)$ denotes approximate posterior beliefs about $A$ if we knew occurence of the state-outcome pair $(o_\tau,s_\tau)$. In the following, we show that we can compute the expected free energy in the following way
 	 \begin{equation}
 	 \label{eq: sol efe computation}
 	     \begin{split}

@@ -264,7 +264,7 @@ By subscribing to the above assumptions, it is possible to describe the behaviou
 
 \section{Discrete state-space generative models}
 
-The generative model \citep{bishopPatternRecognitionMachine2006} expresses how the agent represents the world. This is a joint probability distribution over sensory data and the hidden (or latent) causes of these data. The sorts of discrete state-space generative models used in active inference are specifically suited to represent discrete time series and decision-making tasks. These can be expressed as variants of partially observable Markov decision processes (POMDPs; \citep{astromOptimalControlMarkov1965}): from simple Markov decision processes \citep{bartoReinforcementLearningIntroduction1992,stoneArtificialIntelligenceEngines2019,whiteMarkovDecisionProcesses2001} to generalisations in the form of deep probabilistic (hierarchical) models \citep{fristonDeepTemporalModels2018,boxMultiparameterProblemsBayesian1965,allenbyHierarchicalBayesModels2005}. For clarity, the process theory is derived for the simplest model that facilitates understanding of subsequent generalisations; namely, a POMDP where the agent holds beliefs about the probability of the initial state (specified as $D$), the transition probabilities from one state to the next (defined as matrix $B$) and the probability of states given outcomes (i.e., the likelihood matrix $A$); see Figure \ref{fig:gen mod}.
+The generative model \citep{bishopPatternRecognitionMachine2006} expresses how the agent represents the world. This is a joint probability distribution over sensory data and the hidden (or latent) causes of these data. The sorts of discrete state-space generative models used in active inference are specifically suited to represent discrete time series and decision-making tasks. These can be expressed as variants of partially observable Markov decision processes (POMDPs; \citep{astromOptimalControlMarkov1965}): from simple Markov decision processes \citep{bartoReinforcementLearningIntroduction1992,stoneArtificialIntelligenceEngines2019,whiteMarkovDecisionProcesses2001} to generalisations in the form of deep probabilistic (hierarchical) models \citep{fristonDeepTemporalModels2018,boxMultiparameterProblemsBayesian1965,allenbyHierarchicalBayesModels2005}. For clarity, the process theory is derived for the simplest model that facilitates understanding of subsequent generalisations; namely, a POMDP where the agent holds beliefs about the probability of the initial state (specified as $D$), the transition probabilities from one state to the next (defined as matrix $B$) and the probability of outcomes given states (i.e., the likelihood matrix $A$); see Figure \ref{fig:gen mod}.
 
 
 \begin{figure}
@@ -304,15 +304,16 @@ $T$ & Number of timesteps in a trial of observation epochs under the generative 
 
 $U$ & Set of all possible actions. & Finite set.\\\addlinespace[0.3cm]
  
-$\Pi$ & Set of all allowable policies; i.e., sequences of actions. & Finite subset of $U^T$. \\\addlinespace[0.3cm]
+$\Pi$ & Set of all allowable policies; i.e., sequences of actions. & Finite subset of $\underbrace{U \times \ldots \times U}_{T \text{ times}} =U^T$. \\\addlinespace[0.3cm]
 
-$\pi$ & Policy. & Random variable over $\Pi$, or element of $\Pi$ depending on context. \\\addlinespace[0.3cm]
+$\pi$ & Policy. & Random variable over $\Pi$, or element of $\Pi$ depending on context.
+\\\addlinespace[0.3cm]
 
-$Q$ & Approximate posterior distribution. & Probability distribution over the latent variables of the generative model.\\\addlinespace[0.3cm]
+$Q$ & Approximate posterior distribution, over the latent variables of the generative model, e.g., $s_{1:T},A$. & Probability distribution. $Q(s_{\tau})$ (resp. $Q(A)$) is a categorical distribution over $S$ (resp. a product of Dirichlet distributions over the columns of $A$), which can be represented as a vector of real numbers (resp. a matrix in $M_{n\times m}(\mathbb R_{>0})$) corresponding to its parameters. \\\addlinespace[0.3cm]
  
-$F, F_\pi$ & Variational free energy and variational free energy conditioned upon a policy. & Functionals of $Q$.\\\addlinespace[0.3cm]
+$F, F_\pi$ & Variational free energy and variational free energy conditioned upon a policy. & Functionals of $Q$ that evaluate to a scalar quantity.\\\addlinespace[0.3cm]
 
-$G$ & Expected free energy. & Function defined on $\Pi$. \\\addlinespace[0.3cm]
+$G$ & Expected free energy. & Function defined on $\Pi$ that evaluates to a scalar quantity. \\\addlinespace[0.3cm]
 
 $Cat$ & Categorical distribution; probability distribution over a finite set assigning strictly positive probabilities. & Probability distribution over a finite set of cardinality $k$ with parameter space $\{x \in \mathbb R^{k} | x_i >0, \sum_i x_i =1\}$\\\addlinespace[0.3cm]
 
@@ -322,9 +323,11 @@ $X_{\bullet i}, X_{ki}$& i$^{th}$ column and (k,i)$^{th}$ element of matrix $X$.
  
 $\cdot, \otimes, \odot, ^\odot$& Respectively inner product, Kronecker product, element-wise product and element-wise power. Following existing active inference literature, we adopt the convention $X \cdot Y:= X^T Y$ for matrices. &	Operation on vectors and matrices. \\\addlinespace[0.3cm]
  
-$A$ & Likelihood matrix. The probability of the state-outcome pair $o_\tau, s_\tau$ is given by $o_\tau \cdot A s_\tau$. & Random variable over the subset of $M_{n\times m}(\mathbb R)$ with columns in $\{x \in \mathbb R^{k} | x_i >0, \sum_i x_i =1\}$. \\\addlinespace[0.3cm]
+$A$ & Likelihood matrix. The probability of the state-outcome pair $o_\tau, s_\tau$, namely $P(o_\tau|s_\tau,A)$ is given by $o_\tau \cdot A s_\tau$. & Random variable over the subset of $M_{n\times m}(\mathbb R)$ with columns in $\{x \in \mathbb R^{n} | x_i >0, \sum_i x_i =1\}$. \\\addlinespace[0.3cm]
 
-$B$ & Matrix of transition probabilities from one state to the next state given action $\pi_{\tau-1}$. The probability of possible state $s_\tau$, given $s_{\tau-1}$ and action $\pi_{\tau-1}$ is $s_\tau\cdot B_{\pi_{\tau-1}}s_{\tau -1}$. & Matrix in $M_{m\times m}(\mathbb R)$ with columns in $\{x \in \mathbb R^{k} | x_i >0, \sum_i x_i =1\}$. \\\addlinespace[0.3cm]
+$B_{\pi_{\tau-1}}$ & Matrix of transition probabilities from one state to the next state given action $\pi_{\tau-1}$. The probability of possible state $s_\tau$, given $s_{\tau-1}$ and action $\pi_{\tau-1}$ is $s_\tau\cdot B_{\pi_{\tau-1}}s_{\tau -1}$. & Matrix in $M_{m\times m}(\mathbb R)$ with columns in $\{x \in \mathbb R^{m} | x_i >0, \sum_i x_i =1\}$. \\\addlinespace[0.3cm]
+
+$D$ & Vector of probabilities of initial state. The probability of the i-th possible state occurring at time $1$ is $D_i$. & Vector of probabilities in $\{x \in \mathbb R^{m} | x_i >0, \sum_i x_i =1\}$. \\\addlinespace[0.3cm]
 
 $a, \bold a$& Parameters of prior and approximate posterior beliefs about $A$. & Matrices in $M_{n\times m}(\mathbb R_{>0})$. \\\addlinespace[0.3cm]
 
@@ -350,15 +353,14 @@ As mentioned above, a substantial body of work justifies describing certain neur
 
 Active inference, implicitly, accounts for fast and slow neuronal dynamics. At each time-step the agent observes an outcome, from which it infers the past, present and future (hidden) states through perception. This underwrites a plan into the future, by evaluating (the expected free energy of) possible policies. The inferred (best) policies specify the most likely action, which is executed. At a slower timescale, parameters encoding the contingencies of the world (e.g., $A$), are inferred. This is referred to as learning. Even more slowly, the structure of the generative model is updated to better account for available observations -- this is called structure learning. The following sections elucidate these aspects of the active inference process theory.
 
-This paper will be largely concerned with deriving and interpreting the inferential dynamics that agents might implement using the generative model in Figure \ref{fig:gen mod}. We leave the discussion of more complex models to Appendix \ref{appendix: more complex models}, since the derivations are analogous in those cases.
+This paper will be largely concerned with deriving and interpreting the inferential dynamics that agents might implement using the generative model in Figure \ref{fig:gen mod}. We leave the discussion of more complex models to \ref{appendix: more complex models}, since the derivations are analogous in those cases.
 
 \section{Variational Bayesian inference}
 \label{sec: VB}
 
 \subsection{Free energy and model evidence}
 
-Variational Bayesian inference rests upon minimisation of a quantity called (variational) free energy, which measures the improbability (i.e., the surprise) of sensory observations, under a generative model. Simultaneously, variational free energy minimisation is a statistical inference technique that enables the approximation of the posterior distribution in Bayes rule. In machine learning, this is known as variational Bayes \citep{bishopPatternRecognitionMachine2006,jordanIntroductionVariationalMethods1998,bealVariationalAlgorithmsApproximate2003,bleiVariationalInferenceReview2017}.
-Active inference agents minimise variational free energy, enabling concomitant maximisation of their model evidence and inference of the latent variables of their generative model. In the following, we consider a particular time point to be given $t\in\{1,...,T\}$, whence the agent has observed a sequence of outcomes $o_{1:t}$. The posterior about the latent causes of sensory data is given by Bayes rule:
+Variational Bayesian inference rests upon minimisation of a quantity called (variational) free energy, which bounds the improbability (i.e., the surprise) of sensory observations, under a generative model. Simultaneously, free energy minimisation is a statistical inference technique that enables the approximation of the posterior distribution in Bayes rule. In machine learning, this is known as variational Bayes \citep{bishopPatternRecognitionMachine2006,jordanIntroductionVariationalMethods1998,bealVariationalAlgorithmsApproximate2003,bleiVariationalInferenceReview2017}. Active inference agents minimise variational free energy, enabling concomitant maximisation of their model evidence and inference of the latent variables of their generative model. In the following, we consider a particular time point to be given $t\in\{1,...,T\}$, whence the agent has observed a sequence of outcomes $o_{1:t}$. The posterior about the latent causes of sensory data is given by Bayes rule:
   	
   	\begin{equation}
   	\label{eq:bayes rule}
@@ -367,7 +369,7 @@ Active inference agents minimise variational free energy, enabling concomitant m
   		
   		
 Computing the posterior distribution requires computing the model evidence $P(o_{1:t})=\sum_{\pi \in \Pi }\sum_{s_{1:T}\in S^T}\int P(o_{1:t} ,s_{1:T}, A, \pi ) \: dA$, which is intractable for complex generative models embodied by biological and artificial systems \citep{fristonHierarchicalModelsBrain2008} -- a well-known problem in Bayesian statistics.
-An alternative to computing the exact posterior distribution is to optimise an approximate posterior distribution over latent causes $Q(s_{1:T}, A, \pi)$, by minimising the Kullback-Leibler (KL) divergence \citep{kullbackInformationSufficiency1951} ($D_{KL}$) -- a non-negative measure of discrepancy between probability distributions. We can use the definition of the KL divergence and Bayes rule to arrive at the variational free energy $F$, which is a functional of approximate posterior beliefs:
+An alternative to computing the exact posterior distribution is to optimise an approximate posterior distribution over latent causes $Q(s_{1:T}, A, \pi)$, by minimising the Kullback-Leibler (KL) divergence \citep{kullbackInformationSufficiency1951} $D_{KL}$ -- a non-negative measure of discrepancy between probability distributions. We can use the definition of the KL divergence and Bayes rule to arrive at the variational free energy $F$, which is a functional of approximate posterior beliefs:
 
   	\begin{equation}
   	\label{eq: vfe}
@@ -375,12 +377,13 @@ An alternative to computing the exact posterior distribution is to optimise an a
   	        0 &\leq D_{KL}[Q(s_{1:T}, A, \pi)||P(s_{1:T}, A, \pi |o_{1:t})] \\
   	        &= \E_{Q(s_{1:T}, A, \pi)}[\log Q(s_{1:T}, A, \pi) - \log P(s_{1:T}, A, \pi |o_{1:t})] \\
   	        &= \E_{Q(s_{1:T}, A, \pi)}[\log Q(s_{1:T}, A, \pi) - \log P(o_{1:t},s_{1:T}, A, \pi) + \log P(o_{1:t})] \\
-  	        &= \underbrace{\E_{Q(s_{1:T}, A, \pi)}[\log Q(s_{1:T}, A, \pi) - \log P(o_{1:t},s_{1:T}, A, \pi)]}_{F[Q(s_{1:T}, A, \pi)]} + \log P(o_{1:t}) \\
+  	        &= \underbrace{\E_{Q(s_{1:T}, A, \pi)}[\log Q(s_{1:T}, A, \pi) - \log P(o_{1:t},s_{1:T}, A, \pi)]}_{=:F[Q(s_{1:T}, A, \pi)]} + \log P(o_{1:t}) \\
   	        \Rightarrow & -\log P(o_{1:t}) \leq F[Q(s_{1:T}, A, \pi)]
   	    \end{split}
   	\end{equation}
   	
-From \eqref{eq: vfe}, one can see that by varying $Q$ to minimise the variational free energy enables us to approximate the true posterior, while simultaneously ensuring that surprise remains low. This means that variational free energy minimising agents, simultaneously, infer the latent causes of their observations and maximise the evidence for their generative model.
+From \eqref{eq: vfe}, one can see that by varying $Q$ to minimise the variational free energy enables us to approximate the true posterior, while simultaneously ensuring that surprise remains low. The former offers the intuitive interpretation of the free energy as a generalised prediction error. Indeed, minimising free energy corresponds to suppressing the discrepancy between predictions, i.e., $Q$, and the actual state of affairs, i.e., the posterior. Altogether, this means that variational free energy minimising agents, simultaneously, infer the latent causes of their observations and maximise the evidence for their generative model. One should note that the free energy equals the surprise $-\log P(o_{1:t})$ only at the global free energy minimum, when the approximate posterior $Q(s_{1:T}, A, \pi)$ equals to the true posterior $P(s_{1:T}, A, \pi |o_{1:t})$. Outside of the global free energy minimum, the free energy upper bounds the surprise, in which case, since the true posterior is generally intractable, the tightness of the bound is generally unknowable.
+
 To aid intuition, the variational free energy can be rearranged into complexity and accuracy:
 
   	\begin{multline}
@@ -404,7 +407,7 @@ This schematic illustrates the various interpretations of minimising variational
 
 \subsection{On the family of approximate posteriors}
 
-The goal is now to minimise variational free energy with respect to $Q$. To obtain a tractable expression for the variational free energy, we need to assume a certain simplifying factorisation of the approximate posterior. There are many possible forms \citep{parrNeuronalMessagePassing2019,yedidiaConstructingFreeEnergyApproximations2005,heskesConvexityArgumentsEfficient2006} (e.g., mean-field, marginal, Bethe), each of which trades off the quality of the inferences with the complexity of the computations involved. For the purpose of this paper we use a particular (structured) mean-field approximation, see Figure \ref{fig:gen mod}:
+The goal is now to minimise variational free energy with respect to $Q$. To obtain a tractable expression for the variational free energy, we need to assume a certain simplifying factorisation of the approximate posterior. There are many possible forms (e.g., mean-field, marginal, Bethe, see \citep{parrNeuronalMessagePassing2019,yedidiaConstructingFreeEnergyApproximations2005,heskesConvexityArgumentsEfficient2006}), each of which trades off the quality of the inferences with the complexity of the computations involved. For the purpose of this paper we use a particular structured mean-field approximation, see Figure \ref{fig:gen mod}:
   		
   		\begin{equation}
   		\label{eq: mean field approx}
@@ -441,17 +444,18 @@ is the variational free energy conditioned upon a policy. This is the same quant
 \section{Perception}
 
 In active inference, perception is equated with state estimation \citep{fristonActiveInferenceProcess2017} (e.g., inferring the temperature from the sensation of warmth), consistent with the idea that perceptions are hypotheses \citep{gregoryPerceptionsHypotheses1980}. To infer the (past, present and future) states of the environment, an agent must minimise the variational free energy with respect to $Q(s_{1:T}|\pi)$ for each policy $\pi$. This provides the agent’s inference over hidden states, contingent upon pursuing a given policy. Since the only part of the free energy that depends on $Q(s_{1:T}|\pi)$ is $F_\pi$, the agent must simply minimise $F_\pi$. 
-Substituting $Q(s_{\tau}|\pi)$ by their sufficient statistics (i.e., parameters $\bold s_{\pi \tau}$), $F_\pi$ becomes a function of those parameters. This enables us to rewrite \eqref{eq: VFE_pi}, conveniently in matrix form:
+Substituting $Q(s_{\tau}|\pi)$ by their sufficient statistics (i.e., parameters $\bold s_{\pi \tau}$), $F_\pi$ becomes a function of those parameters. This enables us to rewrite \eqref{eq: VFE_pi}, conveniently in matrix form (see \ref{app: deriving perceptual dynamics} for details):
 
 \begin{equation}
-    \begin{split}
+\label{eq: vfe pi matrix form perception}
+  	    \begin{split}
         F_\pi(\bold s_{\pi 1},...,\bold s_{\pi T}) &= \sum_{\tau = 1}^T \bold s_{\pi \tau } \cdot \log \bold s_{\pi \tau } 
         - \sum_{\tau = 1}^t o_\tau \cdot \textbf{log} \bold A \bold s_{\pi \tau }\\
         &- \bold s_{\pi 1 } \log D- \sum_{\tau = 2}^T \bold s_{\pi \tau } \cdot \log (B_{\pi_{\tau-1}})\bold s_{\pi \tau-1 }
     \end{split}
 \end{equation}
 
-This enables to compute the variational free energy gradients \citep{petersenMatrixCookbook}:
+This enables to compute the variational free energy gradients \citep{petersenMatrixCookbook2012}:
 \begin{equation}
     \label{eq:vfe gradients perception}
     \begin{split}
@@ -464,30 +468,37 @@ This enables to compute the variational free energy gradients \citep{petersenMat
     \end{split}
 \end{equation}
 
-The neuronal dynamics are given by a gradient descent on free energy \citep{fristonActiveInferenceProcess2017}, with state-estimation expressed as a softmax function of accumulated (negative) free energy gradients. The constant term $\vec{1}$ is generally omitted since the softmax function removes it anyway. This enables us to equate the gradient with a prediction error.
+The neuronal dynamics are given by a gradient descent on free energy \citep{fristonActiveInferenceProcess2017}, with state-estimation expressed as a softmax function of accumulated (negative) free energy gradients, that we denote by $v_{\pi \tau}$ (see Section \ref{sec: plausibility of neuronal dynamics} for an interpretation). The constant term $\vec{1}$ is generally omitted since the softmax function removes it anyway.
 
   	\begin{equation}
   	\label{eq: perceptual dynamics}
   	    \begin{split}
-  	        \dot v (\bold s_{\pi 1},...,\bold s_{\pi T})&=-\nabla_{\bold s_{\pi\tau}} F_\pi(\bold s_{\pi 1},...,\bold s_{\pi T}) \\
-  	        \bold s_{\pi\tau} = \sigma (v)
+  	        \dot v_{\pi \tau} (\bold s_{\pi 1},...,\bold s_{\pi T})&=-\nabla_{\bold s_{\pi\tau}} F_\pi(\bold s_{\pi 1},...,\bold s_{\pi T}) \\
+  	        \bold s_{\pi\tau} = \sigma (v_{\pi \tau})
   	    \end{split}
   	\end{equation}
   	
-The softmax function – a generalisation of the sigmoid to vector inputs – is a natural choice as the variational free energy gradient is a logarithm and the components of $\bold s_{\pi\tau}$ must sum to one.
+The softmax function $\sigma$ – a generalisation of the sigmoid to vector inputs – is a natural choice as the variational free energy gradient is a logarithm and the components of $\bold s_{\pi\tau}$ must sum to one. Note that although we have expressed the inferential dynamics as a gradient descent in continuous time, any numerical implementation of active inference would implement a discretised version of \eqref{eq: perceptual dynamics} until convergence, for example
+  	\begin{equation*}
+  	    \begin{split}
+  	         v_{\pi \tau}^{(k)}&= v_{\pi \tau}^{(k-1)} -\kappa \nabla_{\bold s^{(k-1)}_{\pi\tau}} F_\pi(\bold s^{(k-1)}_{\pi 1},...,\bold s^{(k-1)}_{\pi T}) \text{ for small } \kappa >0 \\
+  	        \bold s_{\pi\tau}^{(k)} &= \sigma (v_{\pi \tau}^{(k)}).
+  	    \end{split}
+  	\end{equation*}
 
 \subsection{Plausibility of neuronal dynamics}
+\label{sec: plausibility of neuronal dynamics}
 
 The temporal dynamics expressed in \eqref{eq: perceptual dynamics} unfold at a much faster timescale than the sampling of new observations (i.e., within timesteps) and correspond to fast neuronal processing in peristimulus time. This is consistent with behaviour-relevant computations at frequencies that are higher than the rate of visual sampling (e.g., working memory \citep{lundqvistGammaBetaBursts2016}, visual stimulus perception in humans \citep{hanslmayrPrestimulusOscillatoryPhase2013} and macaques \citep{rollsProcessingSpeedCerebral1994}).
 
-Furthermore, these dynamics are consistent with predictive processing \citep{raoPredictiveCodingVisual1999,bastosCanonicalMicrocircuitsPredictive2012} -- since active inference prescribes dynamics that minimise prediction error -- although they generalise it to a wide range of generative models. Note that, while also a variational free energy gradient, this sort of prediction error is not the same as that given by predictive coding schemes (which rely upon a different sort of generative model) \citep{buckleyFreeEnergyPrinciple2017,fristonVariationalFreeEnergy2007,bogaczTutorialFreeenergyFramework2017}.
+Furthermore, these dynamics are consistent with predictive processing \citep{raoPredictiveCodingVisual1999,bastosCanonicalMicrocircuitsPredictive2012} -- since active inference prescribes dynamics that minimise prediction error -- although they generalise it to a wide range of generative models. Note that, while also a variational free energy gradient, this sort of prediction error is not the same as that given by predictive coding schemes (which rely upon a different sort of generative model, see \citep{buckleyFreeEnergyPrinciple2017,fristonVariationalFreeEnergy2007,bogaczTutorialFreeenergyFramework2017}).
 
 Just as neuronal dynamics involve translation from post-synaptic potentials to firing rates, \eqref{eq: perceptual dynamics} involves translating from a vector of real numbers ($v$), to a vector whose elements are bounded between zero and one ($\bold s_{\pi\tau}$); via the softmax function. As a result, it is natural to interpret the components of $v$ as the average membrane potential of distinct neural populations, and $\bold s_{\pi\tau}$ as the average firing rate of those populations, which is bounded thanks to neuronal refractory periods. This is consistent with mean-field formulations of neural population dynamics, in that the average firing rate of a neuronal population follows a sigmoid function of the average membrane potential \citep{marreirosPopulationDynamicsVariance2008,decoDynamicBrainSpiking2008,moranNeuralMassesFields2013}.
 Using the fact that a softmax function is a generalisation of the sigmoid to vector inputs -- here the average membrane potentials of coupled neuronal populations -- it follows that their average firing follows a softmax function of their average potential. In this context, the softmax function may be interpreted as performing lateral inhibition, which can be thought of as leading to narrower tuning curves of individual neurons and thereby sharper inferences \citep{vonbekesySensoryInhibition1967}. Importantly, this tells us that state-estimation can be performed in parallel by different neuronal populations, and a simple neuronal architecture is sufficient to implement these dynamics (see Figure 6 in \citep{parrNeuronalMessagePassing2019}).
 
 Lastly, interpreting the dynamics in this way has a degree of face validity, as it enables us to synthesise a wide-range of biologically plausible electrophysiological responses; including repetition suppression, mismatch negativity, violation responses, place-cell activity, phase precession, theta sequences, theta-gamma coupling, evidence accumulation, race-to-bound dynamics and transfer of dopamine responses \citep{schwartenbeckDopaminergicMidbrainEncodes2015,fristonActiveInferenceProcess2017}.
 
-The neuronal dynamics for state estimation coincide with variational message passing \citep{winnVariationalMessagePassing2005,dauwelsVariationalMessagePassing2007}: a widely used algorithm for approximate Bayesian inference. This is an important result, since it shows that variational message passing emerges under active inference using a particular mean-field approximation. If one were to use the Bethe approximation, the corresponding dynamics coincide with belief propagation \citep{bishopPatternRecognitionMachine2006,loeligerIntroductionFactorGraphs2004,parrNeuronalMessagePassing2019,schwobelActiveInferenceBelief2018,yedidiaConstructingFreeEnergyApproximations2005}, another widely used algorithm for approximate inference. This offers a formal connection between active inference and message passing interpretations of neuronal dynamics \citep{fristonGraphicalBrainBelief2017,dauwelsMeasuringNeuralSynchrony2007,georgeBeliefPropagationWiring2005}. In the next section, we examine planning, decision-making and action selection.
+The neuronal dynamics for state estimation coincide with variational message passing \citep{winnVariationalMessagePassing2005,dauwelsVariationalMessagePassing2007}, a popular algorithm for approximate Bayesian inference. This follows, as we have seen, from free energy minimisation under a particular mean-field approximation \eqref{eq: mean field approx}. If one were to use the Bethe approximation, the corresponding dynamics coincide with belief propagation \citep{bishopPatternRecognitionMachine2006,loeligerIntroductionFactorGraphs2004,parrNeuronalMessagePassing2019,schwobelActiveInferenceBelief2018,yedidiaConstructingFreeEnergyApproximations2005}, another widely used algorithm for approximate inference. This offers a formal connection between active inference and message passing interpretations of neuronal dynamics \citep{fristonGraphicalBrainBelief2017,dauwelsMeasuringNeuralSynchrony2007,georgeBeliefPropagationWiring2005}. In the next section, we examine planning, decision-making and action selection.
 
 
 \section{Planning, decision-making and action selection}
@@ -498,7 +509,7 @@ In this section, we explain how planning and decision-making arise as a minimisa
 
 \subsection{Planning and decision-making}
 
-At the heart of active inference, is a description of agents that strive to attain a target distribution specifying the range of preferred states of being, given a sufficient amount of time. To work towards reaching these preferences, agents select policies $Q(\pi)$, such that their predicted states $Q(s_\tau,A)$ at some future time point $\tau > t$ (usually, the time horizon of a policy $T$) reach the preferred states $P(s_\tau,A)$, which are specified by the generative model. These considerations allow us to show in Appendix \ref{Appendix:steady-state lemma} that the requisite approximate posterior over policies $Q(\pi)$ is a softmax function of the negative \textit{expected free energy} $G$\footnote{A more complete treatment may include priors over policies – usually denoted by $E$ – and the evidence for a policy afforded by observed outcomes (usually denoted by $\bold F$). These additional terms supplement the expected free energy, leading to an approximate posterior of the form $\sigma (- \log E - \bold F - \bold G)$ \citep{fristonDeepTemporalModels2018}.}:
+At the heart of active inference, is a description of agents that strive to attain a target distribution specifying the range of preferred states of being, given a sufficient amount of time. To work towards reaching these preferences, agents select policies $Q(\pi)$, such that their predicted states $Q(s_\tau,A)$ at some future time point $\tau > t$ (usually, the time horizon of a policy $T$) reach the preferred states $P(s_\tau,A)$, which are specified by the generative model. These considerations allow us to show in \ref{Appendix:steady-state lemma} that the requisite approximate posterior over policies $Q(\pi)$ is a softmax function of the negative \textit{expected free energy} $G$\footnote{A more complete treatment may include priors over policies – usually denoted by $E$ – and the evidence for a policy afforded by observed outcomes (usually denoted by $\bold F$). These additional terms supplement the expected free energy, leading to an approximate posterior of the form $\sigma (- \log E - \bold F - \bold G)$ \citep{fristonDeepTemporalModels2018}.}:
 
 \begin{equation}
 \label{eq: approx post policies}
@@ -516,10 +527,10 @@ Approximate posterior beliefs about policies allows to obtain the most plausible
 
 \begin{equation}
 \label{eq: action selection}
-    u_t = \arg \max_{u \in U } \left (\sum_{\pi \in \Pi} \delta_{u, \pi_t} Q(\pi)\right)
+    u_t = \arg \max_{u \in U } \left (\sum_{\pi \in \Pi , \pi_t =u} Q(\pi)\right).
 \end{equation}
 
-where $\delta$ is the Kronecker delta. In addition, we obtain a policy independent state-estimation at any time point $\tau \in \{1,...,T\}$, as a Bayesian model average of approximate posterior beliefs about hidden states under policies:
+In addition, we obtain a policy independent state-estimation at any time point $Q(s_\tau),\tau \in \{1,...,T\}$, as a Bayesian model average of approximate posterior beliefs about hidden states under policies, which, equivalently, may be expressed in terms of the distribution's parameters ($Q(s_\tau)= Cat(\bold s_\tau),Q(s_\tau |\pi)= Cat(\bold s_{\pi\tau})$):
 
 \begin{equation}
 \label{eq: policy indep}
@@ -534,7 +545,7 @@ Note that these Bayesian model averages may be implemented by neuromodulatory me
 \subsection{Biological plausibility}
 
 Winner take-all architectures of decision-making are already commonplace in computational neuroscience (e.g., models of selective attention and recognition \citep{carpenterMassivelyParallelArchitecture1987,ittiModelSaliencybasedVisual1998}, hierarchical models of vision \citep{riesenhuberHierarchicalModelsObject1999}).
-This is nice, since the softmax function in \eqref{eq: approx post policies} can be seen as providing a biologically plausible \citep{marreirosPopulationDynamicsVariance2008,decoDynamicBrainSpiking2008,moranNeuralMassesFields2013}, smooth approximation to the maximum operation, which is known as soft winner take-all \citep{maassComputationalPowerWinnerTakeAll2000}. In fact, the generative model, presented in Figure \ref{fig:gen mod}, can be naturally extended such that the approximate posterior contains an (inverse) temperature parameter $\gamma$ multiplying the expected free energy inside the softmax function (see Appendix \ref{appendix: gamma}). This temperature parameter regulates how precisely the softmax approximates the maximum function, thus recovering winner take-all architectures for high parameter values (technically, this converts Bayesian model averaging into Bayesian model selection, where the policy corresponds to a model of what the agent is doing). This parameter, regulating precision of policy selection, has a clear biological interpretation in terms of confidence encoded in dopaminergic firing \citep{fitzgeraldDopamineRewardLearning2015,fristonAnatomyChoiceDopamine2014,schwartenbeckDopaminergicMidbrainEncodes2015,fristonActiveInferenceProcess2017}. Interestingly, Daw and colleagues \citep{dawCorticalSubstratesExploratory2006} uncovered evidence in favour of a similar model employing a softmax function and temperature parameter in human decision-making.
+This is nice, since the softmax function in \eqref{eq: approx post policies} can be seen as providing a biologically plausible \citep{marreirosPopulationDynamicsVariance2008,decoDynamicBrainSpiking2008,moranNeuralMassesFields2013}, smooth approximation to the maximum operation, which is known as soft winner take-all \citep{maassComputationalPowerWinnerTakeAll2000}. In fact, the generative model, presented in Figure \ref{fig:gen mod}, can be naturally extended such that the approximate posterior contains an (inverse) temperature parameter $\gamma$ multiplying the expected free energy inside the softmax function (see \ref{appendix: gamma}). This temperature parameter regulates how precisely the softmax approximates the maximum function, thus recovering winner take-all architectures for high parameter values (technically, this converts Bayesian model averaging into Bayesian model selection, where the policy corresponds to a model of what the agent is doing). This parameter, regulating precision of policy selection, has a clear biological interpretation in terms of confidence encoded in dopaminergic firing \citep{fitzgeraldDopamineRewardLearning2015,fristonAnatomyChoiceDopamine2014,schwartenbeckDopaminergicMidbrainEncodes2015,fristonActiveInferenceProcess2017}. Interestingly, Daw and colleagues \citep{dawCorticalSubstratesExploratory2006} uncovered evidence in favour of a similar model employing a softmax function and temperature parameter in human decision-making.
 
 \subsection{Pruning of policy trees}
 
@@ -619,7 +630,7 @@ Intrinsic value is also known as intrinsic motivation in neurorobotics \citep{ba
 
 In active inference, learning concerns the dynamics of synaptic plasticity, which are thought to encode beliefs about the contingencies of the environment \citep{fristonActiveInferenceProcess2017} (e.g., beliefs about $B$, in some settings, are thought to be encoded in recurrent excitatory connections in the prefrontal cortex \citep{parrPrefrontalComputationActive2019}). The fact that beliefs about matrices (e.g., $A$, $B$) may be encoded in synaptic weights conforms to connectionist models of brain function, as it offers a convenient way to compute probabilities, in the sense that the synaptic weights could be interpreted as performing matrix multiplication as in artificial neural networks, to predict; e.g., outcomes from beliefs about states, using the likelihood matrix $A$.
 
-These synaptic dynamics (e.g., long-term potentiation and depression) evolve at a slower timescale than action and perception, which is consistent with the fact that such inferences need evidence accumulation over multiple state-outcome pairs. For simplicity, we will assume the only variable that is learned is $A$, but what follows generalises to more complex generative models (c.f., Appendix \ref{appendix:learning B D}. Learning $A$ means that approximate posterior beliefs about $A$ follow a gradient descent on variational free energy. Seeing the variational free energy \eqref{eq: computing VFE} as a function of $\bold a$ (the sufficient statistic of $Q(A)$) we can write:
+These synaptic dynamics (e.g., long-term potentiation and depression) evolve at a slower timescale than action and perception, which is consistent with the fact that such inferences need evidence accumulation over multiple state-outcome pairs. For simplicity, we will assume the only variable that is learned is $A$, but what follows generalises to more complex generative models (c.f., \ref{appendix:learning B D}. Learning $A$ means that approximate posterior beliefs about $A$ follow a gradient descent on variational free energy. Seeing the variational free energy \eqref{eq: computing VFE} as a function of $\bold a$ (the sufficient statistic of $Q(A)$) we can write:
 
   	\begin{equation}
   	\label{eq: vfe learning}
@@ -713,28 +724,28 @@ Structure learning in active inference is an active area of research. Active inf
 To explain the causes of their sensations, agents must compare different hypotheses about how their sensory data are generated – and retain the hypothesis or model that is the most valid in relation to their observations (i.e., has the greatest model evidence). In Bayesian statistics, these processes are called Bayesian model comparison and Bayesian model selection -- these correspond to scoring the evidence for various generative models in relation to available data and selecting the one with the highest evidence \citep{claeskensModelSelectionModel2006,stephanBayesianModelSelection2009}.
 Bayesian model reduction (BMR) is a particular instance of structure learning, which formalises \textit{post-hoc} hypothesis testing to simplify the generative model. This precludes redundant explanations of sensory data – and ensures the model generalises to new data. Technically, it involves estimating the evidence for simpler (reduced) priors over the latent causes and selecting the model with the highest evidence. This process of simplifying the generative model -- by removing certain states or parameters -- has a clear biological interpretation in terms of synaptic decay and switching off certain synaptic connections, which is reminiscent of the synaptic mechanisms of sleep (e.g., REM sleep \citep{hobsonWakingDreamingConsciousness2012,hobsonVirtualRealityConsciousness2014}), reflection and associated machine learning algorithms (e.g., the wake-sleep algorithm \citep{hintonWakesleepAlgorithmUnsupervised1995}).
 
-To keep things concise, let $\nu$ represent a hidden variable in the generative model that is optimised during learning (e.g. $A$), and $o=o_{1:t}$ a sequence of observations. The current model has a prior $P(\nu)$ and we would like to test whether a reduced prior (i.e., less complex) $\tilde P(\nu)$ can provide a more parsimonious explanation for the observed outcomes. Using Bayes rule, we have the following identities:
+In the following, we show BMR for learning the likelihood matrix $A$. Note that BMR is generic and could be used on any other variable that may be optimised during learning (e.g., see \ref{appendix:learning B D}), just by replacing $A$ in the following lines. To keep things concise, we denote by $o=o_{1:t}$ the sequence of available observations. The current model has a prior $P(A)$ and we would like to test whether a reduced (i.e., less complex) prior $\tilde P(A)$ can provide a more parsimonious explanation for the observed outcomes. Using Bayes rule, we have the following identities:
 
 \begin{align}
-P(\nu)P(o|\nu)&= P(\nu |o)P(o) \label{eq: bayes 1 structure learning}\\ 
-\tilde P(\nu)P(o|\nu)&= \tilde P(\nu |o)\tilde P(o) \label{eq: bayes 2 structure learning}
+P(A)P(o|A)&= P(A |o)P(o) \label{eq: bayes 1 structure learning}\\ 
+\tilde P(A)P(o|A)&= \tilde P(A |o)\tilde P(o) \label{eq: bayes 2 structure learning}
 \end{align}
 
-Where $P(o)=\int P(o|\nu)P(\nu) \: d\nu$ and $\tilde P(o)=\int P(o|\nu) \tilde P(\nu)$. Dividing \eqref{eq: bayes 1 structure learning} by \eqref{eq: bayes 2 structure learning} yields
+Where $P(o)=\int P(o|A)P(A) \: dA$ and $\tilde P(o)=\int P(o|A) \tilde P(A)$. Dividing \eqref{eq: bayes 1 structure learning} by \eqref{eq: bayes 2 structure learning} yields
 	 
 	 \begin{equation}
 \label{eq: bayes divided}
-	     \frac{P(\nu)}{\tilde P(\nu)} = \frac{P(\nu|o)P(o)}{\tilde P(\nu|o)\tilde P(o)} 
+	     \frac{P(A)}{\tilde P(A)} = \frac{P(A|o)P(o)}{\tilde P(A|o)\tilde P(o)} 
 	 \end{equation}
   	
  We can then use \eqref{eq: bayes divided} in order to obtain the following relations:
  
  \begin{align}
-        1 &= \int \tilde P(\nu|o)\: d\nu =\frac{P(o)}{\tilde P(o)}\int \frac{\tilde P(\nu) P(\nu|o)}{P(\nu)} \:d\nu = \frac{P(o)}{\tilde P(o)}\E_{P(\nu|o)}\left[\frac{\tilde P(\nu)}{P(\nu)}\right] \\
-        \Rightarrow &\log \tilde P(o) -\log  P(o) =\log \E_{P(\nu|o)}\left[\frac{\tilde P(\nu)}{P(\nu)}\right] \label{eq: intractable posterir structure learning}
+        1 &= \int \tilde P(A|o)\: dA =\frac{P(o)}{\tilde P(o)}\int \frac{\tilde P(A) P(A|o)}{P(A)} \:dA = \frac{P(o)}{\tilde P(o)}\E_{P(A|o)}\left[\frac{\tilde P(A)}{P(A)}\right] \\
+        \Rightarrow &\log \tilde P(o) -\log  P(o) =\log \E_{P(A|o)}\left[\frac{\tilde P(A)}{P(A)}\right] \label{eq: intractable posterir structure learning}
  \end{align}
 
-We can approximate the posterior term in the expectation of \eqref{eq: intractable posterir structure learning} with the corresponding approximate posterior $Q(\nu)$, which simplifies the computation. This allows us to compare the evidence of the two models (reduced and full) and select the best. If the reduced model has more evidence, it implies the current model is too complex – and redundant parameters can be removed by adopting the new priors.
+We can approximate the posterior term in the expectation of \eqref{eq: intractable posterir structure learning} with the corresponding approximate posterior $Q(A)$, which simplifies the computation. This allows us to compare the evidence of the two models (reduced and full). If the reduced model has more evidence, it implies the current model is too complex – and redundant parameters can be removed by adopting the new priors.
 
 In conclusion, BMR allows for computationally efficient and biologically plausible hypothesis testing, to find simpler explanations for the data at hand. It has been used to emulate sleep and reflection in abstract rule learning \citep{fristonActiveInferenceCuriosity2017}, by simplifying the prior over $A$ at the end of each trial -- this has the additional benefit of preventing the agent from becoming overconfident.
 
@@ -753,7 +764,7 @@ However, for a full endorsement of the process theory presented in this paper, r
 
 This means that the key challenge for active inference -- and arguably data analysis in general -- is finding the generative model that best explains observable data (i.e., evidence maximising). A solution to this problem would enable to find the generative model -- entailed by an agent -- by observing its behaviour. In turn, this would enable one to simulate its belief updating and behaviour accurately \textit{in-silico}. It should be noted that these generative models can be specified manually for the purposes of reproducing simple behaviour (e.g., agents performing simple tasks needed for empirical validation discussed above). However, a generic solution to this problem is necessary to account for complex datasets; in particular, complex behavioural data from agents in a real environment. Moreover, a biologically plausible solution to this problem could correspond to a complete structure learning roadmap; accounting for how biological agents evolve their generative model to account for new observations. Evolution has solved this problem by selecting phenotypes with a good model of their sensory data, therefore, understanding the processes that have selected generative models that are fit for purpose for our environment might lead to important advances in structure learning and data analysis.
 
-Discovering new generative models corresponding to complex behavioural data, will demand to extend the current process theory to these models, in order to provide testable predictions and reproduce the observed behaviour in-silico. Examples of generative models that do not fall within the current discrete state-space, continuous state-space \citep{buckleyFreeEnergyPrinciple2017,fristonActiveInferenceAgency2012,adamsComputationalAnatomyPsychosis2013,brownActiveInferenceSensory2013,adamsPredictionsNotCommands2013,fristonPerceptionsHypothesesSaccades2012,brownFreeEnergyIllusionsCornsweet2012} or mixed \citep{fristonGraphicalBrainBelief2017,parrDiscreteContinuousBrain2018,parrComputationalPharmacologyOculomotion2019} models – currently implemented in active inference – include Markov decision trees \citep{jordanIntroductionVariationalMethods1998,jordanHiddenMarkovDecision1997} and Boltzmann machines \citep{stoneArtificialIntelligenceEngines2019,ackleyLearningAlgorithmBoltzmann1985,salakhutdinovEfficientLearningProcedure2012}.
+Discovering new generative models corresponding to complex behavioural data will demand to extend the current process theory to these models, in order to provide testable predictions and reproduce the observed behaviour in-silico. Examples of generative models that are used in learning and decision-making, yet are not accommodated by the current process theory, include Markov decision trees \citep{jordanIntroductionVariationalMethods1998,jordanHiddenMarkovDecision1997} and Boltzmann machines \citep{stoneArtificialIntelligenceEngines2019,ackleyLearningAlgorithmBoltzmann1985,salakhutdinovEfficientLearningProcedure2012}. %These do not fit into the current dichotomy of the active inference process theory that accommodates discrete state-space, continuous state-space (see \citep{buckleyFreeEnergyPrinciple2017,fristonActiveInferenceAgency2012,adamsComputationalAnatomyPsychosis2013,brownActiveInferenceSensory2013,adamsPredictionsNotCommands2013,fristonPerceptionsHypothesesSaccades2012,brownFreeEnergyIllusionsCornsweet2012}) or mixed (see \citep{fristonGraphicalBrainBelief2017,parrDiscreteContinuousBrain2018,parrComputationalPharmacologyOculomotion2019}) models.
 
 One challenge that may arise, when scaling active inference to complex models with many degrees of freedom, will be the size of the policy trees in consideration. Although effective and biologically plausible, the current pruning strategy is unlikely to reduce the search space sufficiently to enable tractable inference in such cases. As noted above, the issue of scaling active inference may yield to the first principles of the variational free energy formulation. Specifically, generative models with a high evidence are minimally complex. This suggests that ‘scaling up’, in and of itself, is not the right strategy for reproducing more sophisticated or deep behaviour. A more principled approach would be to explore the right kind of factorisations necessary to explain structured behaviour. A key candidate here are deep temporal or diachronic generative models that have a separation of timescales. This form of factorisation (c.f., mean field approximation) replaces deep decision trees with shallow decision trees that are hierarchically composed.
 
@@ -852,41 +863,137 @@ There is a useful metaphor for understanding the concept underlying deep tempora
 To obtain the associated belief updating, one computes free energy at the lower level by conditioning the probability distributions from Bayes rule by the variables from the higher levels. This means that one performs belief updating at the lower levels independently of the higher levels. Then, one computes the variational free energy at the higher levels by treating the lower levels as outcomes. For more details on the specificities of the scheme see \citep{fristonActiveInferenceCuriosity2017}.
 
 
+\section{Perception}
+\label{app: deriving perceptual dynamics}
+
+Here, we detail the computation of perceptual dynamics in the main text, specifically how to obtain \eqref{eq: vfe pi matrix form perception}, \eqref{eq:vfe gradients perception} from \eqref{eq: VFE_pi}. In what follows, we denote the state-space by $S=\{\sigma_1,\ldots , \sigma_m\}$.
+
+\subsection{Free energy in state-estimation}
+Recall the variational free energy conditioned upon a policy \eqref{eq: VFE_pi}:
+\begin{equation}
+\label{eq: vfe pi app}
+  	    \begin{split}
+  	        F_\pi[Q(s_{1:T}|\pi)] & = \sum_{\tau =1}^T\E_{Q(s_\tau |\pi)}[\log Q(s_\tau |\pi)] -\sum_{\tau = 1}^t \E_{Q(s_\tau |\pi)Q(A)}[\log P(o_{\tau}|s_{\tau},A)] \\
+  	        &-\E_{Q(s_1 |\pi)}[\log P(s_1)]-\sum_{\tau =2}^T \E_{Q(s_\tau |\pi)Q(s_{\tau-1} |\pi)}[\log P(s_\tau |s_{\tau-1},\pi)]
+      	    \end{split}
+  \end{equation}
+In virtue of the mean field approximation \eqref{eq: mean field approx} the approximate posterior over states $Q(s_{1:T}|\pi)$ factorises as $Q(s_{1:T}|\pi)= \prod_{\tau=1}^T Q(s_\tau|\pi)$, each of the factors being a categorical distribution over state-space $S$ with parameter $\mathbf s_{\pi \tau}$ a vector in $\{x \in (\R_{>0})^m | \sum_{i}x_i=1\}$. Then, the free energy conditioned upon $\pi$ is equivalently a function of each of those parameters
+\begin{equation*}
+    F_\pi[Q(s_{1:T}|\pi)] = F_\pi(\bold s_{\pi 1},...,\bold s_{\pi T}).
+\end{equation*}
+Now we compute each of the expectations in \eqref{eq: vfe pi app}.
+\begin{itemize}
+    \item $\E_{Q(s_\tau |\pi)}[\log Q(s_\tau |\pi)]$. We use the definition of conditional expectation
+    \begin{equation*}
+        \E_{Q(s_\tau |\pi)}[\log Q(s_\tau |\pi)]= \sum_{i=1}^m Q(s_\tau =\sigma_i |\pi) \log Q(s_\tau =\sigma_i |\pi)
+    \end{equation*}
+    Now since $\mathbf s_{\pi \tau}$ is the parameter of $Q(s_\tau |\pi)$, we have by definition $Q(s_\tau = \sigma_i|\pi)={\mathbf s_{\pi \tau}}_i$, the i-th component of $\mathbf s_{\pi \tau}$. Hence,
+    \begin{equation*}
+        \sum_{i=1}^m Q(s_\tau =\sigma_i |\pi) \log Q(s_\tau =\sigma_i |\pi) = \sum_{i=1}^m{\mathbf s_{\pi \tau}}_i \log {\mathbf s_{\pi \tau}}_i = \mathbf s_{\pi \tau} \cdot \log \mathbf s_{\pi \tau}
+    \end{equation*}
+    where the last equality follows by definition of the dot product of vectors.
+    \item $\E_{Q(s_\tau |\pi)Q(A)}[\log P(o_{\tau}|s_{\tau},A)]$. By definition of the likelihood matrix, $\log P(o_{\tau}|s_{\tau},A)= \log(o_\tau \cdot A s_\tau)$ where $A$ is a matrix and $o_\tau$ (resp. $s_\tau$) are seen as a vector of zeros with a one at the outcome (resp. state) that occurs (see Table \ref{table:2}). Since $o_\tau, s_\tau$ are only ones and zeros, $\log (o_\tau \cdot A s_\tau)=o_\tau \cdot \log(A) s_\tau$. Using this and the linearity of the expectation we obtain
+    \begin{equation*}
+    \begin{split}
+        \E_{Q(s_\tau |\pi)Q(A)}[\log P(o_{\tau}|s_{\tau},A)] &= \E_{Q(s_\tau|\pi)}\E_{Q(A)}[\log (o_\tau \cdot A s_\tau)] \\
+        &= o_\tau \cdot \E_{Q(s_\tau|\pi)}\left[\E_{Q(A)}[\log A] s_\tau\right] \\
+        &=o_\tau \cdot \E_{Q(A)}[\log A] \E_{Q(s_\tau|\pi)}\left[s_\tau\right]
+    \end{split}
+    \end{equation*}
+    By definition (see Table \ref{table:2}), we write $\E_{Q(A)}[\log A]=\textbf{log} \bold A$. Also, denoting by $\vec e_i$ the i-th unit vector in $\R^m$
+    \begin{equation*}
+        \E_{Q(s_\tau|\pi)}\left[s_\tau\right] = \sum_{i=1}^m Q(s_\tau= \sigma_i|\pi) \vec e_i =\sum_{i=1}^m {\mathbf s_{\pi \tau}}_i \vec e_i = \mathbf s_{\pi \tau}
+    \end{equation*}
+    Finally,
+    \begin{equation*}
+        \E_{Q(s_\tau |\pi)}[\log Q(s_\tau |\pi)] = o_\tau \cdot \textbf{log} \bold A\mathbf s_{\pi \tau}.
+    \end{equation*}
+    \item $\E_{Q(s_1 |\pi)}[\log P(s_1)]$. By definition of the expectation, and of the vector $D$ (see Table \ref{table:2})
+    \begin{equation}
+    \label{eq: initial state}
+        \E_{Q(s_1 |\pi)}[\log P(s_1)]= \sum_{i=1}^m Q(s_1 =\sigma_i|\pi) \log D_i = \sum_{i=1}^m {\mathbf s_{\pi \tau}}_i \log D_i = {\mathbf s_{\pi \tau}} \cdot \log D.
+    \end{equation}
+    \item $\E_{Q(s_\tau |\pi)Q(s_{\tau-1} |\pi)}[\log P(s_\tau |s_{\tau-1},\pi)]$. By definition $\log P(s_\tau |s_{\tau-1},\pi)=\log \left(s_\tau \cdot B_{\pi_{\tau-1}} s_{\tau-1}\right)$ (see Table \ref{table:2}). Then a calculation analogous as for $\E_{Q(s_\tau |\pi)Q(A)}[\log P(o_{\tau}|s_{\tau},A)]$ yields
+    \begin{equation}
+    \label{eq: trans prob}
+        \E_{Q(s_\tau |\pi)Q(s_{\tau-1} |\pi)}[\log P(s_\tau |s_{\tau-1},\pi)]= \bold s_{\pi \tau } \cdot \log (B_{\pi_{\tau-1}})\bold s_{\pi \tau-1 }.
+    \end{equation}
+\end{itemize}
+Inserting %\eqref{eq: trans prob}, \eqref{eq: initial state},
+these results into \eqref{eq: vfe pi app} gives us \eqref{eq: vfe pi matrix form perception}:
+ \begin{equation}
+ \label{eq: 7 in app}
+  	    \begin{split}
+        F_\pi(\bold s_{\pi 1},...,\bold s_{\pi T}) &= \sum_{\tau = 1}^T \bold s_{\pi \tau } \cdot \log \bold s_{\pi \tau } 
+        - \sum_{\tau = 1}^t o_\tau \cdot \textbf{log} \bold A \bold s_{\pi \tau }\\
+        &- \bold s_{\pi 1 } \log D- \sum_{\tau = 2}^T \bold s_{\pi \tau } \cdot \log (B_{\pi_{\tau-1}})\bold s_{\pi \tau-1 }
+    \end{split}
+\end{equation}
+
+\subsection{Free energy gradients}
+
+Now we may compute the gradients of $F_\pi$ with respect to any of its arguments $\bold s_{\pi 1},...,\bold s_{\pi T}$. We do this for $\bold s_{\pi t}, t>1$, the others are analogous. When taking the gradient $\nabla _{\bold s_{\pi t}} F_\pi$, the only terms that do not vanish in \eqref{eq: 7 in app} are those that depend on $\bold s_{\pi t}$. Using the rules of differentiation of matrices and vectors \citep{petersenMatrixCookbook2012} we obtain \eqref{eq:vfe gradients perception}.
+ \begin{equation}
+  	    \begin{split}
+        \nabla _{\bold s_{\pi t}} F_\pi(\bold s_{\pi 1},...,\bold s_{\pi T}) &= \nabla _{\bold s_{\pi t}}[ \bold s_{\pi t } \cdot \log \bold s_{\pi t } 
+        -  o_t \cdot \textbf{log} \bold A \bold s_{\pi t }-\bold s_{\pi t+1} \cdot \log (B_{\pi_{ t}})s_{\pi t}] \\
+        &= -\bold s_{\pi t+1} \cdot \log (B_{\pi_{ t}}) -\log (B_{\pi_{ t-1}}) \bold s_{\pi t-1} \\
+        &=\vec {1} +\log  \bold s_{\pi\tau} - o_t \cdot \textbf{log} \bold A-\bold s_{\pi t+1} \cdot \log (B_{\pi_{ t}}) -\log (B_{\pi_{ t-1}}) \bold s_{\pi t-1}
+    \end{split}
+\end{equation}
+
+
 \section{Expected free energy}
 \label{Appendix:steady-state lemma}
 
-At the heart of active inference is a description of a certain class of systems at non-equilibrium steady-state (NESS) \citep{parrMarkovBlanketsInformation2019,fristonFreeEnergyPrinciple2019}. An important consequence of NESS is the existence of a steady-state probability distribution $P(s_\tau,A)$ that the agent is guaranteed to reach given a sufficient amount of time. Intuitively, this distribution should be thought as the agent's preferences over states and model parameters. Practically, this means that the agent selects policies, such that its predicted states $Q(s_\tau,A)$ at some future time point $\tau >t$ -- usually, the time horizon of a policy $T$ -- reach its preferences $P(s_\tau,A)$, which are specified by the generative model. In the following, we will show how a specific family of distributions $Q(\pi)$ guarantee an agent to reach its preferences. Then, we will see how NESS enables in fact to extract one single canonical member of this family: the (softmax negative) \textit{expected free energy}.
+At the heart of active inference is a description of a certain class of systems that self-organise at non-equilibrium steady-state \citep{parrMarkovBlanketsInformation2019,fristonFreeEnergyPrinciple2019}. This implies the existence of a steady-state probability distribution $P(s_\tau,A)$ that the agent is guaranteed to reach given a sufficient amount of time. Intuitively, this distribution corresponds to the agent's preferences over states and model parameters. Practically, this means that the agent selects policies, such that its predicted states $Q(s_\tau,A)$ at some future time point $\tau >t$ -- usually, the time horizon of a policy $T$ -- reach its preferences $P(s_\tau,A)$, which are specified by the generative model.
 
-\textbf{Objective:} we seek distributions over policies that imply steady-state solutions; i.e., when the final distribution does not depend upon initial observations. Such solutions ensure that, on average, stochastic policies lead to a steady-state or target distribution specified by the generative model. These solutions exist in virtue of conditional independencies, where the hidden states provide a Markov blanket that separates policies from outcomes. In other words, policies cause final states that cause outcomes. In what follows, $\tau >t$ is a future time and $Q:=Q(o_\tau, s_\tau, A, \pi) \approx P(o_\tau, s_\tau, A, \pi|o_{1:t})$ is the corresponding approximate posterior distribution, given initial conditions $o_{1:t}$.
+The purpose of this Appendix is to motivate the definition of expected free energy from the steady-state assumption. Specifically, we will show how a family of distributions $Q(\pi)$, which comprises the (negative softmax) expected free energy, guarantee reaching steady-state. At the end, we will mention why active inference uses the \textit{expected free energy} among these different possible alternatives.
+
+\textbf{Objective:} we seek distributions over policies that imply steady-state solutions; i.e., when the final distribution does not depend upon initial observations. Such solutions ensure that, on average, stochastic policies lead to a steady-state or target distribution specified by the generative model. These solutions exist in virtue of conditional independencies, where the hidden states provide a Markov blanket that separates policies from outcomes. In other words, policies cause final states that cause outcomes.
+
+In what follows, $\tau >t$ is a future time and $Q:=Q(o_\tau, s_\tau, A, \pi) \approx P(o_\tau, s_\tau, A, \pi|o_{1:t})$ is the corresponding approximate posterior distribution, given observations $o_{1:t}$.
 
 \begin{lemma}[Steady-state]
 \label{lemma:steady-state}
-The surprisal over policies $-\log Q(\pi)$ and the Gibbs energy,
-\begin{align}
+The system reaches steady-state: 
+\begin{equation*}
+    D_{KL}[Q(s_\tau, A) ||P(s_\tau, A)]=0,
+\end{equation*}
+ if and only if, the surprisal over policies $-\log Q(\pi)$ and the Gibbs energy $G(\pi; \beta)$, are equal when averaged under $Q$
+\begin{align*}
+    \mathbb E_Q[-\log Q(\pi)]&= \mathbb E_Q[G(\pi; \beta)],
+\end{align*}
+where, up to a constant,
+\begin{align*}
     G(\pi; \beta) &= D_{KL}[Q(s_\tau, A|\pi)||P(s_\tau,A)]-\mathbb E_{Q(o_\tau, s_\tau, A|\pi)} [\beta \log P(o_\tau |s_\tau, A)] \\
-    \beta &:= \frac{\mathbb E_Q[\log Q(\pi|s_\tau,A)]}{\mathbb E_Q[\log P(o_\tau|s_\tau,A)]} \geq 0
-\end{align}
-are equal on average under $Q$ if and only if the system reaches steady-state. Explicitly:
-\begin{align}
-    \mathbb E_Q[-\log Q(\pi)]&= \mathbb E_Q[G(\pi; \beta)] \iff D_{KL}[Q(s_\tau, A) ||P(s_\tau, A)]=0
-\end{align}
+    \beta &:= \frac{\mathbb E_Q[\log Q(\pi|s_\tau,A)]}{\mathbb E_Q[\log P(o_\tau|s_\tau,A)]} \geq 0.
+\end{align*}
+In particular, any approximate posterior of the form 
+\begin{equation*}
+    Q(\pi) = \sigma(- G(\pi; \beta)), 
+\end{equation*}
+causes the agent to reach steady-state.
 \end{lemma}
 
 Here, $\beta \geq 0$ characterises the steady-state with the relative precision (i.e., negative entropy) of policies and final outcomes, given final states. The generative model stipulates steady-state, in the sense that distribution over final states (and outcomes) does not depend upon initial observations. Here, the generative and predictive distributions simply express the conditional independence between policies and final outcomes, given final states. Note that when $\beta = 1$, Gibbs energy becomes expected free energy.
 
 \begin{proof}
 Let us unpack the Gibbs energy expected under $Q$:
-\begin{equation}
+\begin{equation*}
     \begin{split}
         \mathbb E_Q[G(\pi; \beta)] &=\mathbb E_Q[D_{KL}[Q(s_\tau, A|\pi)||P(s_\tau,A)]-\mathbb E_{Q(o_\tau, s_\tau, A|\pi)} [\beta \log P(o_\tau |s_\tau, A)]] \\
         &= \mathbb E_Q[D_{KL}[Q(s_\tau, A|\pi)||P(s_\tau,A)]]\\
         &-\frac{\mathbb E_Q[\log Q(\pi|s_\tau,A)]}{\mathbb E_Q[\log P(o_\tau|s_\tau,A)]} \mathbb E_Q [\mathbb E_{Q(o_\tau, s_\tau, A|\pi)} [ \log P(o_\tau |s_\tau, A)]] \\
         &= \mathbb E_Q[\log Q(s_\tau, A|\pi)-\log P(s_\tau, A)-\log Q(\pi |s_\tau,A)] \\
         &= \mathbb E_Q[-\log Q(\pi)-\log P(s_\tau, A)+\log Q(s_\tau,A)] \\
-        &= \mathbb E_Q[-\log Q(\pi)] +D_{KL}[Q(s_\tau,A)||P(s_\tau, A)]
+        &= \mathbb E_Q[-\log Q(\pi)] +D_{KL}[Q(s_\tau,A)||P(s_\tau, A)].
     \end{split}
-\end{equation}
-And the result is immediate.
+\end{equation*}
+Therefore,
+\begin{equation*}
+    \mathbb E_Q[G(\pi; \beta)] = \mathbb E_Q[-\log Q(\pi)] \iff D_{KL}[Q(s_\tau,A)||P(s_\tau, A)]=0.
+\end{equation*}
 \end{proof}
 
 A straightforward consequence of Lemma \ref{lemma:steady-state}, is that each distribution
@@ -896,9 +1003,9 @@ A straightforward consequence of Lemma \ref{lemma:steady-state}, is that each di
 \end{equation}
 
 describes a certain kind of system that self-organises to some steady-state distribution. This family of distributions has interesting interpretations: for example, the case $\beta=0$ corresponds to standard stochastic control, variously known as KL control or risk-sensitive control \citep{vandenbroekRiskSensitivePath2010}: 
-\begin{equation}
+\begin{equation*}
     G(\pi; 0) = D_{KL}[Q(s_\tau, A|\pi)||P(s_\tau, A)] \geq D_{KL}[Q(s_\tau |\pi)||P(s_\tau)]
-\end{equation}
+\end{equation*}
 
 In other words, one chooses policies that minimise the KL divergence between the predictive and target distribution. More generally, when $\beta >0$, policies are more likely when they simultaneously minimise the entropy of outcomes, given states. In other words, $\beta >0$ ensures that the system exhibits itinerant behaviour. One can see that KL control may arise in this case if the entropy of the likelihood mapping remains constant with respect to policies.
 
@@ -919,13 +1026,13 @@ where $G(\pi, \tau_i; \beta)$ is the Gibbs free energy of Lemma \ref{lemma:stead
 
 One perspective – on the distinction between simple and general steady-states – is in terms of uncertainty about policies. For example, simple steady-states preclude uncertainty about which policy led to a final state. This would be appropriate for describing classical systems (that follow a unique path of least action), where it would be possible to infer which policy had been pursued, given the initial and final outcomes. Conversely, in general steady-state systems (e.g., mice, Homo sapiens), simply knowing that ‘you are here’ does not tell me ‘how you got here’, even if I knew where you were this morning. Put another way, there are lots of paths or policies open to systems that attain a general steady state.
 
-In active inference, we are interested in a certain class of systems that self-organise to general steady-states; namely, those that move through a large number of probabilistic configurations from their initial state to their final steady-state. The treatments in \citep{parrMarkovBlanketsInformation2019,fristonFreeEnergyPrinciple2019} effectively turn the steady-state lemma on its head by assuming NESS is stipulatively true – and then characterise the ensuing self-organisation in terms of Bayes optimal policies:
+In active inference, we are interested in a certain class of systems that self-organise to general steady-states; namely, those that move through a large number of probabilistic configurations from their initial state to their final steady-state. The treatments in \citep{parrMarkovBlanketsInformation2019,fristonFreeEnergyPrinciple2019} effectively turn the steady-state lemma on its head by assuming steady-state is stipulatively true – and then characterise the ensuing self-organisation in terms of Bayes optimal policies:
 
 \begin{corollary}[Active inference \citep{fristonFreeEnergyPrinciple2019}]
-If a system attains a general steady-state, it will appear to behave in a Bayes optimal fashion – both in terms of optimal Bayesian design (i.e., exploration) and Bayesian decision theory (i.e., exploitation). Crucially, the loss function defining Bayesian risk is the negative log evidence for the generative model entailed by an agent. In short, systems (i.e., agents) that attain general steady-states will look as if they are responding to epistemic affordances \citep{parrWorkingMemoryAttention2017}.
+If a system attains a general steady-state, it will appear to behave in a Bayes optimal fashion – both in terms of optimal Bayesian design (i.e., exploration) and Bayesian decision theory (i.e., exploitation) \citep{fristonSophisticatedInference2020}. Crucially, the loss function defining Bayesian risk is the negative log evidence for the generative model entailed by an agent. In short, systems (i.e., agents) that attain general steady-states will look as if they are responding to epistemic affordances \citep{parrWorkingMemoryAttention2017}.
 \end{corollary}
 
-So far, we have deduced the distribution over policies of systems that reach steady-state. However, recall that reaching steady-state is only a consequence of NESS. In fact, NESS dynamics under a Markov blanket (c.f., Figure \ref{fig: markov blanket}) imply a slightly stronger statement: the most likely trajectories of systems described by active inference are those which minimise \textit{expected free energy} \citep{parrMarkovBlanketsInformation2019,fristonFreeEnergyPrinciple2019} -- this is exactly the case $\beta =1$ in \eqref{eq:posterior_gibbs}. This is nice, since many existing theories of cognition and control emerge under this specific imperative (c.f., Figure \ref{fig: EFE interpretations}).
+So far, we have deduced the distribution over policies of systems that reach steady-state (Lemma \ref{lemma:steady-state}). However, a stronger conclusion may hold. \cite{parrMarkovBlanketsInformation2019,fristonFreeEnergyPrinciple2019} proved that systems that self-organise to steady-state under a Markov blanket minimise expected free energy -- this is exactly the case $\beta =1$ in \eqref{eq:posterior_gibbs}. This is nice, since many existing theories of cognition and control emerge under this specific imperative (c.f., Figure \ref{fig: EFE interpretations}). An important caveat though is the proof rests upon a continuous state-space formulation. Although we assume that the same reasoning would hold for discrete state-spaces (viewed as discretisations of continuous ones) the details of this remain to be thoroughly explored.
 
 \section{Computing expected free energy}
 	
@@ -937,7 +1044,7 @@ So far, we have deduced the distribution over policies of systems that reach ste
 		- \underbrace{\mathbb E_{P(o_\tau |s_\tau)Q(s_\tau|\pi)}[D_{KL}[Q(A|o_\tau,s_\tau)||Q(A)]]}_{\text{Novelty}}
 	\end{multline}
 	
-	 Here, $Q(A|o_\tau,s_\tau)$ denotes approximate posterior beliefs about $A$ if we knew occurence of the state outcome pair $(o_\tau,s_\tau)$. In the following, we show that we can compute the expected free energy in the following way
+	 Here, $Q(A|o_\tau,s_\tau)$ denotes approximate posterior beliefs about $A$ if we knew occurence of the state-outcome pair $(o_\tau,s_\tau)$. In the following, we show that we can compute the expected free energy in the following way
 	 \begin{equation}
 	 \label{eq: sol efe computation}
 	     \begin{split}
