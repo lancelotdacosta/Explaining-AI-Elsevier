@@ -1,0 +1,144 @@
+
+
+\documentclass{article}
+
+%%%Packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amsthm, amssymb, amsfonts, dsfont, mathrsfs, dirtytalk, tikz-cd, adjustbox, url, nicefrac, booktabs,array,longtable, tabu,bm, hyperref, graphicx, geometry,comment}
+\usepackage{caption}
+
+\usepackage[T1]{fontenc}    
+%\usepackage[margin=1in]{geometry}
+\usepackage[english]{babel}
+%\usepackage[pagebackref=true]{hyperref}
+%\usepackage{hyperref}
+\usepackage[capitalise]{cleveref}
+%\usepackage{arxiv}
+
+%%%Backreferences
+%\renewcommand*{\backref}[1]{}
+%\renewcommand*{\backrefalt}[4]{%
+%    \ifcase #1%
+%          \or (p.~#2.)%
+ %         \else (p.~#2.)%
+  %  \fi%
+   % }
+
+%%%%Macros
+\newcommand{\e}{\epsilon}
+\newcommand{\f}{\forall}
+\newcommand{\R}{\mathbb R}
+\newcommand{\st}{\text{ s.t. }}
+\newcommand{\ex}{\exists}
+\newcommand{\p}{\mathbb P}
+\newcommand{\D}{\mathcal D(\Omega)}
+\newcommand{\N}{\mathbb N}
+\newcommand{\oo}{\Omega}
+\newcommand{\harpoon}{\rightharpoondown}
+\newcommand{\E}{\mathbb E}
+
+
+%%%%Theorem environments%%%%
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{remark}[theorem]{Remark}
+\newenvironment{claim}[1]{\par\noindent\emph{Claim:}\space#1}{}
+\newenvironment{proofclaim}[1]{\par\noindent\textit{Proof of claim.}\space#1}{\hfill $\blacksquare$}
+\newenvironment{sketchproof}[1]{\par\noindent\textit{Sketch proof.}\space#1}{\hfill $\square$}
+
+%% Use the option review to obtain double line spacing
+%% \documentclass[authoryear,preprint,review,12pt]{elsarticle}
+
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+%% \documentclass[final,1p,times,authoryear]{elsarticle}
+%% \documentclass[final,1p,times,twocolumn,authoryear]{elsarticle}
+%% \documentclass[final,3p,times,authoryear]{elsarticle}
+%% \documentclass[final,3p,times,twocolumn,authoryear]{elsarticle}
+%% \documentclass[final,5p,times,authoryear]{elsarticle}
+%% \documentclass[final,5p,times,twocolumn,authoryear]{elsarticle}
+
+%% For including figures, graphicx.sty has been loaded in
+%% elsarticle.cls. If you prefer to use the old commands
+%% please give \usepackage{epsfig}
+
+%% The amssymb package provides various useful mathematical symbols
+%\usepackage{amssymb}
+%% The amsthm package provides extended theorem environments
+%% \usepackage{amsthm}
+
+%% The lineno packages adds line numbers. Start line numbering with
+%% \begin{linenumbers}, end it with \end{linenumbers}. Or switch it on
+%% for the whole article with \linenumbers.\usepackage{lineno}
+
+%\journal{Journal of Mathematical Psychology}
+
+\begin{document}
+
+
+\begin{lemma}[Steady-state]
+\label{lemma:steady-state}
+The system reaches steady-state: 
+\begin{equation*}
+    D_{KL}[Q(s_\tau, A) ||P(s_\tau, A)]=0,
+\end{equation*}
+ if and only if, the surprisal over policies $-\log Q(\pi)$ and the Gibbs energy $G(\pi; \beta)$, are equal when averaged under $Q$
+\begin{align*}
+    \mathbb E_Q[-\log Q(\pi)]&= \mathbb E_Q[G(\pi; \beta)],
+\end{align*}
+where, up to a constant,
+\begin{align*}
+    G(\pi; \beta) &= D_{KL}[Q(s_\tau, A|\pi)||P(s_\tau,A)]-\mathbb E_{Q(o_\tau, s_\tau, A|\pi)} [\beta \log P(o_\tau |s_\tau, A)] \\
+    \beta &:= \frac{\mathbb E_Q[\log Q(\pi|s_\tau,A)]}{\mathbb E_Q[\log P(o_\tau|s_\tau,A)]} \geq 0.
+\end{align*}
+\end{lemma}
+
+\begin{proof}
+Let us unpack the Gibbs energy expected under $Q$:
+\begin{equation*}
+    \begin{split}
+        \mathbb E_Q[G(\pi; \beta)] &=\mathbb E_Q[D_{KL}[Q(s_\tau, A|\pi)||P(s_\tau,A)]-\mathbb E_{Q(o_\tau, s_\tau, A|\pi)} [\beta \log P(o_\tau |s_\tau, A)]] \\
+        &= \mathbb E_Q[D_{KL}[Q(s_\tau, A|\pi)||P(s_\tau,A)]]\\
+        &-\frac{\mathbb E_Q[\log Q(\pi|s_\tau,A)]}{\mathbb E_Q[\log P(o_\tau|s_\tau,A)]} \mathbb E_Q [\mathbb E_{Q(o_\tau, s_\tau, A|\pi)} [ \log P(o_\tau |s_\tau, A)]] \\
+        &= \mathbb E_Q[\log Q(s_\tau, A|\pi)-\log P(s_\tau, A)-\log Q(\pi |s_\tau,A)] \\
+        &= \mathbb E_Q[-\log Q(\pi)-\log P(s_\tau, A)+\log Q(s_\tau,A)] \\
+        &= \mathbb E_Q[-\log Q(\pi)] +D_{KL}[Q(s_\tau,A)||P(s_\tau, A)].
+    \end{split}
+\end{equation*}
+Therefore,
+\begin{equation*}
+    \mathbb E_Q[G(\pi; \beta)] = \mathbb E_Q[-\log Q(\pi)] \iff D_{KL}[Q(s_\tau,A)||P(s_\tau, A)]=0.
+\end{equation*}
+\end{proof}
+
+\begin{corollary}
+Each approximate posterior
+\begin{equation*}
+    \label{eq:posterior_gibbs}
+   Q(\pi) =\sigma(-G(\pi; \beta)),\quad \beta \geq 0
+\end{equation*}
+\textbf{does not} necessarily cause the system to reach steady-state.
+\end{corollary}
+
+\begin{proof}
+Let $\beta \geq 0$.
+\begin{equation*}
+   Q(\pi) = \frac{1}{Z}\exp(-G(\pi; \beta))
+\end{equation*}
+where $Z:= \sum_{\pi} \exp(-G(\pi; \beta))$. Then
+\begin{equation*}
+    -\log Q(\pi) = G(\pi; \beta) + \log Z
+\end{equation*}
+Following with the above proof, we obtain 
+\begin{equation*}
+    D_{KL}[Q(s_\tau, A) ||P(s_\tau, A)]= \log Z.
+\end{equation*}
+By non-negativity ok the KL divergence $Z \geq 1$. $Z=1$ corresponds to reaching steady-state. Minimising $Z$ corresponds to getting closer to steady-state.
+\end{proof}
+
+What is also odd is that to minimise $Z= \sum_{\pi} \exp(-G(\pi; \beta))$ it suffices to maximise $G(\pi)?$ 
+
+\end{document}
